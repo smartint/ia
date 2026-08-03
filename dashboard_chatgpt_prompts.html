@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatGPT — Casos de Uso y Prompts Listos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7faf9;
+    --surface: #ffffff;
+    --surface-alt: #eaf7f2;
+    --accent: #12a679;
+    --accent-light: #d3f3e8;
+    --accent-dark: #0c7d5c;
+    --text: #1c2b27;
+    --text-muted: #5c7a71;
+    --border: #d9ece4;
+    --shadow: 0 2px 12px rgba(18,166,121,0.08);
+    --prompt-bg: #0f1f1a;
+    --prompt-text: #d7f7e9;
+    --prompt-accent: #4ee3ab;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1712;
+    --surface: #16211b;
+    --surface-alt: #1c2b23;
+    --accent: #3fd6a0;
+    --accent-light: #1f3d31;
+    --accent-dark: #7cf0c2;
+    --text: #e7f6ef;
+    --text-muted: #8fb3a4;
+    --border: #26392f;
+    --shadow: 0 2px 16px rgba(0,0,0,0.4);
+    --prompt-bg: #06110d;
+    --prompt-text: #c9f7e4;
+    --prompt-accent: #4ee3ab;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1712;
+      --surface: #16211b;
+      --surface-alt: #1c2b23;
+      --accent: #3fd6a0;
+      --accent-light: #1f3d31;
+      --accent-dark: #7cf0c2;
+      --text: #e7f6ef;
+      --text-muted: #8fb3a4;
+      --border: #26392f;
+      --shadow: 0 2px 16px rgba(0,0,0,0.4);
+      --prompt-bg: #06110d;
+      --prompt-text: #c9f7e4;
+      --prompt-accent: #4ee3ab;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .card-title, .brand { font-family: 'Outfit', sans-serif; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 24px 70px;
+  }
+
+  /* ---------- Header ---------- */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand .logo {
+    font-size: 2.2rem;
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-light);
+    border-radius: 16px;
+  }
+  .brand h1 { margin: 0; font-size: 1.6rem; font-weight: 800; }
+  .brand .sub { color: var(--text-muted); font-size: 0.9rem; margin-top: 2px; }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .num { font-size: 1.7rem; font-weight: 800; color: var(--accent); }
+  .stat-card .lbl { color: var(--text-muted); font-size: 0.8rem; margin-top: 2px; }
+
+  .search-row {
+    position: relative;
+    margin-bottom: 26px;
+  }
+  .search-row input {
+    width: 100%;
+    padding: 13px 18px 13px 42px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-row input:focus { border-color: var(--accent); }
+  .search-row::before {
+    content: '🔎';
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .search-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: -14px 0 20px 4px;
+  }
+
+  /* ---------- Cards ---------- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 20px 14px;
+  }
+  .card-num {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-ico { font-size: 1.4rem; }
+  .card-title { font-size: 1.02rem; font-weight: 700; line-height: 1.3; margin-top: 1px; }
+
+  .card-body { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+  .field-text { font-size: 0.87rem; line-height: 1.55; }
+  .field-text strong { color: var(--text); }
+
+  .example-box {
+    background: var(--surface-alt);
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--accent);
+  }
+
+  .prompt-box {
+    background: var(--prompt-bg);
+    color: var(--prompt-text);
+    border-radius: 14px;
+    padding: 14px 15px 12px;
+    position: relative;
+    margin-top: 2px;
+  }
+  .prompt-box .prompt-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .prompt-box .prompt-label span {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--prompt-accent);
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(78,227,171,0.14);
+    border: 1px solid rgba(78,227,171,0.4);
+    color: var(--prompt-accent);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: rgba(78,227,171,0.25); }
+  .copy-btn.copied { background: var(--prompt-accent); color: #08251a; border-color: var(--prompt-accent); }
+  .prompt-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .big { font-size: 2.4rem; margin-bottom: 10px; }
+
+  mark {
+    background: var(--accent-light);
+    color: var(--text);
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+
+  .footer-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 40px;
+    line-height: 1.6;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="brand">
+      <div class="logo">🤖</div>
+      <div>
+        <h1>ChatGPT — Casos de Uso y Prompts</h1>
+        <div class="sub">Solo fuentes de ChatGPT / OpenAI del cuaderno "Duelo de IA"</div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro">🌗 <span id="themeLabel">Modo automático</span></button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Herramientas de ChatGPT</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Ejemplos de uso</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Prompts listos para copiar</div></div>
+    <div class="stat-card"><div class="num">22</div><div class="lbl">Fuentes originales cubiertas</div></div>
+  </div>
+
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="Buscar herramienta, palabra clave o prompt...">
+  </div>
+  <div class="search-meta" id="searchMeta"></div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <div class="footer-note">Generado a partir de las fuentes de ChatGPT/OpenAI del cuaderno de NotebookLM "Duelo de IA: GPT-5.6 Sol contra Fable 5". Los prompts son plantillas de partida: sustituye lo que esté entre corchetes por tus datos.</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const ITEMS = [
+    {
+      ico: '🗂️',
+      t: 'ChatGPT Work (agente de escritorio)',
+      q: 'Agente proactivo (web y escritorio) que ejecuta flujos completos: divide tareas, se conecta a herramientas externas y puede leer, modificar y guardar archivos locales de tu ordenador.',
+      p: 'Automatizar tareas pesadas de principio a fin: analizar Excels, crear presentaciones e informes completos sin intervención manual.',
+      e: 'Le das una carpeta con el Excel de notas de la clase y te devuelve el análisis, los gráficos, el informe y la presentación ya montados.',
+      prompt: 'Analiza el Excel adjunto con las notas de mi clase de 6º de Primaria. Detecta patrones de rendimiento por alumno y por área, genera gráficos de evolución trimestral, crea un dashboard ejecutivo, redacta un informe de evaluación en Word y prepara una presentación de 6 diapositivas para la reunión de ciclo. Guarda todos los archivos en una carpeta llamada "Evaluación_3T".'
+    },
+    {
+      ico: '🎙️',
+      t: 'ChatGPT Live / Modo de voz avanzado',
+      q: 'Voz en tiempo real (full duplex) que en escritorio puede ver y controlar tu pantalla, guiándote o ejecutando acciones directamente.',
+      p: 'Mantener conversaciones fluidas y recibir ayuda paso a paso sobre lo que estás viendo en tu ordenador.',
+      e: 'Abres un programa que no dominas y le pides ayuda hablando; la IA mira tu pantalla y te indica dónde hacer clic o lo hace por ti.',
+      prompt: 'Mira mi pantalla. Estoy dentro de Canva y no sé cómo añadir un juego interactivo a esta pizarra online. Guíame en voz alta, paso a paso, y si hace falta haz clic tú mismo en los botones correctos.'
+    },
+    {
+      ico: '☀️',
+      t: 'Familia GPT-5.6: Sol, Terra y Luna',
+      q: 'Tres niveles de modelo: Sol (potente, razonamiento pesado), Terra (equilibrado) y Luna (rápido y económico).',
+      p: 'Elegir la relación coste/inteligencia adecuada según la complejidad real de la tarea.',
+      e: 'Con Sol en esfuerzo Ultra y varios subagentes, la IA trabaja horas sin parar generando todos los entregables de un proyecto completo.',
+      prompt: 'Actúa como el modelo Sol con esfuerzo Ultra. Diseña de principio a fin un proyecto STEAM de 3 semanas sobre "el sistema solar" para 6º de Primaria: guion de las sesiones, fichas de trabajo, rúbrica de evaluación y una presentación final para las familias.'
+    },
+    {
+      ico: '🌐',
+      t: 'ChatGPT Sites',
+      q: 'Constructor integrado en Work para generar, previsualizar y publicar apps web o dashboards con código frontend real, desde el propio chat.',
+      p: 'Convertir datos o necesidades en una web interactiva compartible mediante una URL, sin programar.',
+      e: 'Le pasas los datos de tu clase con @sites y genera una web con el horario, las normas y los recursos, lista para compartir con las familias.',
+      prompt: '@sites Crea un sitio web sencillo para mi clase con: horario semanal, normas de convivencia y un apartado de "recursos" con enlaces a los materiales de cada asignatura. Usa tonos azules y una tipografía clara y amigable para niños de primaria.'
+    },
+    {
+      ico: '🔌',
+      t: 'Conectores (plugins) y Habilidades (Skills)',
+      q: 'Los conectores vinculan ChatGPT con apps externas (Gmail, Drive, Slack...); las habilidades son rutinas guardadas para repetir tareas sin reexplicarlas.',
+      p: 'Orquestar flujos entre aplicaciones y programar tareas recurrentes automáticas.',
+      e: 'Conectas Gmail y programas que cada mañana revise la bandeja y prepare borradores de respuesta a las familias.',
+      prompt: 'Conecta con mi Gmail. Cada día laborable a las 8:00, revisa los correos nuevos de familias, identifica los que requieren respuesta y prepárame un borrador breve y cordial para cada uno, sin enviarlos todavía.'
+    },
+    {
+      ico: '📘',
+      t: 'Guía oficial de prompting de OpenAI',
+      q: 'Seis estrategias clave para modelos de razonamiento: instrucciones claras, textos de referencia, división de tareas, tiempo para pensar, herramientas externas y prueba sistemática.',
+      p: 'Escribir mejores prompts y obtener resultados más precisos y menos genéricos.',
+      e: 'En vez de pedir "dame ideas", reformulas tu petición aplicando las 6 estrategias oficiales para obtener un entregable completo.',
+      prompt: 'Quiero mejorar cómo pido las cosas. Ayúdame a reescribir mi petición aplicando las 6 estrategias de la guía oficial de prompting de OpenAI (instrucciones claras, texto de referencia, división en pasos, tiempo para pensar, herramientas externas y prueba sistemática). Mi objetivo real es: [pega aquí tu petición original].'
+    },
+    {
+      ico: '🔐',
+      t: 'Códigos secretos de visualización ("/comandos")',
+      q: 'Prompts con "/" que fuerzan salidas visuales concretas: simulaciones, apuntes a mano, checklists o infografías, en vez de texto plano.',
+      p: 'Transformar contenido académico denso en material visual e interactivo fácil de estudiar.',
+      e: 'Con /visualize learning, un alumno obtiene una simulación interactiva del proceso de la fotosíntesis.',
+      prompt: '/visualize learning proceso de la fotosíntesis, adaptado a alumnado de 10 años, con controles interactivos de luz, agua y CO2'
+    },
+    {
+      ico: '⌨️',
+      t: 'Teclado físico Codex Micro',
+      q: 'Dispositivo físico (botones, joystick, rueda) de OpenAI y Work Louder para controlar agentes de ChatGPT Work y Codex sin ratón.',
+      p: 'Lanzar tareas, aprobar cambios y activar habilidades guardadas con un solo botón físico.',
+      e: 'Con la rueda ajustas el nivel de razonamiento; con un botón lanzas la skill de "ficha de refuerzo diaria" ya configurada.',
+      prompt: 'Crea una skill llamada "ficha_refuerzo_diaria" que, al activarse, genere automáticamente una ficha de repaso de matemáticas con 10 ejercicios de dificultad progresiva, en formato listo para imprimir, usando siempre la misma plantilla de cabecera del centro.'
+    },
+    {
+      ico: '💬',
+      t: 'ChatGPT camuflado en WhatsApp',
+      q: 'El asistente oficial de OpenAI integrado en WhatsApp mediante un contacto empresarial verificado (+1 800 242 8478).',
+      p: 'Usar edición de imágenes, análisis y generación de texto desde el móvil dentro de una conversación normal.',
+      e: 'Fotografías un ejercicio manuscrito de un alumno y pides corrección y sugerencias directamente por WhatsApp.',
+      prompt: '[Enviar junto a una foto del ejercicio] Aquí tienes el ejercicio manuscrito de un alumno de 4º de Primaria. Corrígelo, indica los errores con una explicación sencilla y dime qué tipo de refuerzo necesita.'
+    },
+    {
+      ico: '🩺',
+      t: 'ChatGPT Health',
+      q: 'Función piloto que conecta historiales o datos de apps de salud (modo solo lectura) para detectar patrones de sueño, actividad o medicación.',
+      p: 'Actuar como asistente de bienestar, sin sustituir el consejo médico profesional.',
+      e: 'Conectas tus datos de sueño de las últimas semanas y pides que identifique patrones antes de un periodo de mucha carga de trabajo.',
+      prompt: 'Estos son mis datos de sueño y actividad de las últimas 2 semanas: [pega o adjunta el resumen]. Sin sustituir el consejo médico, ayúdame a detectar patrones y sugiere 3 hábitos sencillos para mejorar mi descanso antes del periodo de evaluaciones.'
+    }
+  ];
+
+  const grid = document.getElementById('cardGrid');
+  const searchInput = document.getElementById('searchInput');
+  const searchMeta = document.getElementById('searchMeta');
+
+  function highlight(str, q) {
+    if (!q) return str;
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + esc + ')', 'ig');
+    return str.replace(re, '<mark>$1</mark>');
+  }
+
+  function cardTemplate(item, idx, q) {
+    return `
+      <div class="tool-card" data-idx="${idx}">
+        <div class="card-head">
+          <div class="card-num">${idx + 1}</div>
+          <div class="card-ico">${item.ico}</div>
+          <div class="card-title">${highlight(item.t, q)}</div>
+        </div>
+        <div class="card-body">
+          <div>
+            <div class="field-label">🔍 Qué es</div>
+            <div class="field-text">${highlight(item.q, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">⚙️ Para qué sirve</div>
+            <div class="field-text">${highlight(item.p, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">💡 Ejemplo de uso</div>
+            <div class="example-box">${highlight(item.e, q)}</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-label">
+              <span>✨ Prompt listo para copiar</span>
+              <button class="copy-btn" data-idx="${idx}" aria-label="Copiar prompt">📋 Copiar</button>
+            </div>
+            <div class="prompt-text">${highlight(item.prompt, q)}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function attachCopyEvents() {
+    grid.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        const text = ITEMS[idx].prompt;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerHTML;
+          btn.innerHTML = '✅ Copiado';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('copied');
+          }, 1600);
+        }).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btn.innerHTML = '✅ Copiado';
+          setTimeout(() => { btn.innerHTML = '📋 Copiar'; }, 1600);
+        });
+      });
+    });
+  }
+
+  function render(query) {
+    const q = (query || '').trim();
+    const filtered = [];
+    ITEMS.forEach((item, idx) => {
+      const haystack = (item.t + ' ' + item.q + ' ' + item.p + ' ' + item.e + ' ' + item.prompt).toLowerCase();
+      if (!q || haystack.includes(q.toLowerCase())) filtered.push({ item, idx });
+    });
+
+    if (q) {
+      searchMeta.textContent = `${filtered.length} resultado(s) para "${query}"`;
+    } else {
+      searchMeta.textContent = '';
+    }
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="big">🕳️</div>No se encontró ninguna herramienta que coincida con tu búsqueda.</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(f => cardTemplate(f.item, f.idx, q)).join('');
+    attachCopyEvents();
+  }
+
+  let searchTimer = null;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    const val = e.target.value;
+    searchTimer = setTimeout(() => render(val), 180);
+  });
+
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  const AppTheme = { current: localStorage.getItem('chatgpt-dash-theme') || 'auto' };
+  function applyTheme() {
+    if (AppTheme.current === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+      themeLabel.textContent = 'Modo automático';
+    } else {
+      document.documentElement.setAttribute('data-theme', AppTheme.current);
+      themeLabel.textContent = AppTheme.current === 'dark' ? 'Modo oscuro' : 'Modo claro';
+    }
+  }
+  themeToggle.addEventListener('click', () => {
+    AppTheme.current = AppTheme.current === 'auto' ? 'dark' : (AppTheme.current === 'dark' ? 'light' : 'auto');
+    localStorage.setItem('chatgpt-dash-theme', AppTheme.current);
+    applyTheme();
+  });
+  applyTheme();
+
+  // ---------- Init ----------
+  render('');
+});
+</script>
+</body>
+</html>
