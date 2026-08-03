@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Duelo de IA — Mapa de Herramientas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f9fc;
+    --surface: #ffffff;
+    --surface-alt: #eef2fb;
+    --accent: #5b8dee;
+    --accent-light: #d6e4ff;
+    --text: #1e2a3a;
+    --text-muted: #6b7a99;
+    --border: #dde3f0;
+    --success: #4caf82;
+    --error: #e57373;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --cat: #5b8dee;
+    --cat-light: #d6e4ff;
+  }
+  :root[data-theme="dark"] {
+    --bg: #12172a;
+    --surface: #1a2140;
+    --surface-alt: #222a4d;
+    --accent: #7aabf7;
+    --accent-light: #2a3a6a;
+    --text: #e8edf8;
+    --text-muted: #93a1c9;
+    --border: #2e3a5a;
+    --shadow: 0 2px 16px rgba(0,0,0,0.35);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12172a;
+      --surface: #1a2140;
+      --surface-alt: #222a4d;
+      --accent: #7aabf7;
+      --accent-light: #2a3a6a;
+      --text: #e8edf8;
+      --text-muted: #93a1c9;
+      --border: #2e3a5a;
+      --shadow: 0 2px 16px rgba(0,0,0,0.35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4, .brand, .cat-name, .card-title { font-family: 'Outfit', sans-serif; }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    width: 290px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    padding: 22px 16px;
+    gap: 18px;
+    z-index: 20;
+    transition: transform 0.25s ease;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 1.15rem;
+    padding: 0 4px;
+  }
+  .brand .logo { font-size: 1.6rem; }
+  .brand small {
+    display: block;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 500;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    margin-top: 2px;
+  }
+
+  .search-box {
+    position: relative;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 10px 14px 10px 36px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box input:focus { border-color: var(--accent); }
+  .search-box::before {
+    content: '🔎';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .nav-scroll {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-right: 4px;
+  }
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .nav-btn:hover { background: var(--surface-alt); }
+  .nav-btn.active {
+    background: var(--cat-btn-color, var(--accent-light));
+    color: var(--text);
+  }
+  .nav-btn .nav-ico {
+    font-size: 1.1rem;
+    width: 26px;
+    text-align: center;
+  }
+  .nav-btn .nav-count {
+    margin-left: auto;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    background: rgba(0,0,0,0.06);
+    padding: 2px 8px;
+    border-radius: 20px;
+    color: var(--text-muted);
+  }
+  :root[data-theme="dark"] .nav-btn .nav-count,
+  :root:not([data-theme="light"]) .nav-btn .nav-count { background: rgba(255,255,255,0.08); }
+
+  .sidebar-footer {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    padding: 8px 4px 0;
+    border-top: 1px solid var(--border);
+    line-height: 1.5;
+  }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface-alt);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  /* ---------- Main ---------- */
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 30px 40px 60px;
+  }
+  .topbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 26px;
+    flex-wrap: wrap;
+  }
+  .topbar h1 {
+    margin: 0;
+    font-size: 1.7rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .topbar .subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-top: 4px;
+  }
+  .menu-toggle {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+
+  /* ---------- Home ---------- */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .num { font-size: 1.9rem; font-weight: 800; color: var(--accent); }
+  .stat-card .lbl { color: var(--text-muted); font-size: 0.82rem; margin-top: 2px; }
+
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
+  }
+  .cat-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    border-left: 6px solid var(--tile-color, var(--accent));
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .cat-tile:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+  .cat-tile .ico { font-size: 1.8rem; }
+  .cat-tile h3 { margin: 10px 0 4px; font-size: 1.05rem; }
+  .cat-tile p { margin: 0; color: var(--text-muted); font-size: 0.82rem; line-height: 1.4; }
+  .cat-tile .count-badge {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--tile-color, var(--accent));
+    background: color-mix(in srgb, var(--tile-color, var(--accent)) 15%, transparent);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  /* ---------- Cards grid ---------- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 18px;
+    align-items: start;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    border-top: 4px solid var(--cat-color, var(--accent));
+  }
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .card-head .card-ico {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: var(--cat-light, var(--accent-light));
+  }
+  .card-title { font-size: 1rem; font-weight: 700; line-height: 1.3; flex: 1; }
+  .chevron { font-size: 0.9rem; color: var(--text-muted); transition: transform 0.2s ease; }
+  .tool-card.open .chevron { transform: rotate(180deg); }
+
+  .card-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.32s ease;
+  }
+  .tool-card.open .card-body { max-height: 3600px; }
+  .card-body-inner { padding: 0 18px 18px; display: flex; flex-direction: column; gap: 14px; }
+
+  .field { }
+  .field .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--cat-color, var(--accent));
+    margin-bottom: 5px;
+  }
+  .field .field-text {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text);
+  }
+  .field .field-text strong { color: var(--text); }
+
+  .steps {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .steps li { font-size: 0.87rem; line-height: 1.5; padding-left: 2px; }
+
+  .example-box {
+    background: var(--surface-alt);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 0.87rem;
+    line-height: 1.55;
+    border-left: 3px solid var(--cat-color, var(--accent));
+  }
+
+  /* ---------- Casos de uso (educativo) ---------- */
+  .casos-box {
+    background: color-mix(in srgb, var(--cat-color, var(--accent)) 7%, var(--surface-alt));
+    border: 1px dashed color-mix(in srgb, var(--cat-color, var(--accent)) 40%, var(--border));
+    border-radius: 14px;
+    padding: 12px 12px 4px;
+  }
+  .casos-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--cat-color, var(--accent));
+    margin-bottom: 10px;
+  }
+  .casos-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  @media (min-width: 1400px) {
+    .casos-grid { grid-template-columns: 1fr 1fr; }
+  }
+  .caso-item {
+    display: flex;
+    gap: 8px;
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 9px 10px;
+    font-size: 0.83rem;
+    line-height: 1.45;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .caso-num {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--cat-color, var(--accent));
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+  .caso-item strong { color: var(--cat-color, var(--accent)); }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .big { font-size: 2.4rem; margin-bottom: 10px; }
+
+  .search-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+  }
+  mark {
+    background: var(--accent-light);
+    color: var(--text);
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+
+  @media (max-width: 880px) {
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0;
+      transform: translateX(-100%);
+      box-shadow: 0 0 30px rgba(0,0,0,0.2);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .menu-toggle { display: inline-flex; }
+    .main { padding: 20px 18px 50px; }
+    .overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 15;
+    }
+    .overlay.show { display: block; }
+  }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><span class="logo">🥊</span><div>Duelo de IA<small>Mapa de herramientas del cuaderno</small></div></div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Buscar herramienta, palabra clave...">
+  </div>
+  <nav class="nav-scroll" id="navScroll"></nav>
+  <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro">🌗 <span id="themeLabel">Modo automático</span></button>
+  <div class="sidebar-footer">Generado desde el cuaderno de NotebookLM<br><strong>"Duelo de IA: GPT-5.6 Sol contra Fable 5"</strong> — 71 fuentes analizadas.<br>🎓 Incluye 4 casos de uso educativo por herramienta.</div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+      <h1 id="viewTitle">Inicio</h1>
+      <div class="subtitle" id="viewSubtitle">Panorama general del cuaderno</div>
+    </div>
+  </div>
+  <div id="content"></div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const DATA = {
+    categories: [
+      {
+        id: 'chatgpt', name: 'ChatGPT & OpenAI', icon: '🤖', color: '#12a679', light: '#d3f3e8',
+        desc: 'Agentes de trabajo, voz en tiempo real, modelos GPT-5.6 y trucos de productividad.',
+        items: [
+          {
+            t: 'ChatGPT Work (agente de escritorio)',
+            ico: '🗂️',
+            q: 'Agente de IA proactivo disponible en web y app de escritorio (Mac/Windows). A diferencia del chat clásico reactivo, **Work** ejecuta flujos completos: divide tareas, se conecta a herramientas externas y, en su versión de escritorio, puede leer, modificar y guardar archivos locales de tu ordenador.',
+            p: 'Automatizar tareas pesadas: analizar Excels complejos, crear presentaciones y documentos largos, auditar carpetas enteras y generar informes financieros o de contabilidad completos, de principio a fin.',
+            e: 'Una inmobiliaria entrega una carpeta con un Excel de propiedades, visitas y ventas. ChatGPT Work analiza los datos, detecta patrones, genera gráficos, crea un dashboard ejecutivo, redacta un informe en Word y prepara una presentación de 6 diapositivas en PowerPoint — todo en un único encargo.',
+            pasos: [
+              'Descarga e instala la app de escritorio de ChatGPT.',
+              'Selecciona la pestaña **Work** en lugar de "Chat".',
+              'Ve a Proyectos → "+" → "Usar una carpeta existente" para vincular una carpeta de tu disco.',
+              'Configura los permisos: pedir aprobación siempre, aprobar automáticamente lo seguro, o acceso completo (recomendado usar carpetas específicas, no todo el disco).',
+              'Escribe un prompt exigiendo el **entregable final** completo, no solo ideas ("crea el dashboard, el informe y el email", no "dame ideas").',
+              'Opcional: activa "Modo Plan" para revisar los pasos antes de ejecutar, o escribe **/goal** para que la IA no pare hasta cumplir el objetivo.'
+            ],
+            casos: [
+              '**Informe de evaluación de aula:** sube el Excel de notas de la clase y pide un informe con gráficos por alumno y por competencia, listo para la reunión de evaluación.',
+              '**Boletines automáticos:** a partir de una carpeta con las rúbricas de cada alumno, genera los boletines trimestrales en Word listos para imprimir.',
+              '**Programación didáctica anual:** analiza el currículo oficial en PDF y genera la programación completa por unidades, con objetivos y criterios de evaluación.',
+              '**Catálogo de biblioteca de aula:** audita una carpeta con fichas de lectura y genera un catálogo clasificado por nivel lector y temática.'
+            ]
+          },
+          {
+            t: 'ChatGPT Live / Modo de voz avanzado ("JARVIS")',
+            ico: '🎙️',
+            q: 'Modelo de voz en tiempo real (full duplex) que procesa audio directamente sin transcribir primero a texto. Usa doble arquitectura: un sistema gestiona el habla natural y otro razona el contenido. En escritorio puede además **ver y controlar tu pantalla**.',
+            p: 'Mantener conversaciones fluidas e interrumpibles, cambiar de acento o velocidad, y actuar como asistente que maneja aplicaciones de tu ordenador: abrir programas, mover archivos, editar vídeos o guiarte por un software.',
+            e: 'Abres un editor de vídeo que no dominas y le pides ayuda hablando. La IA capta tu pantalla, te indica verbalmente dónde hacer clic o directamente toma el control del ratón para recortar y exportar el vídeo por ti.',
+            pasos: [
+              'Abre la app móvil o de escritorio de ChatGPT.',
+              'Pulsa el icono circular para iniciar la llamada de voz.',
+              'En ordenador, concede permisos de "uso de pantalla" (computer use).',
+              'Habla con naturalidad pidiéndole que mire tu pantalla o ejecute una acción concreta.'
+            ],
+            casos: [
+              '**Refuerzo lector en voz alta:** un alumno con dificultades practica lectura hablando con la IA, que corrige pronunciación y comprensión en tiempo real.',
+              '**Formación docente exprés:** el profesor pide ayuda por voz mientras comparte pantalla para aprender a manejar una nueva plataforma de gamificación.',
+              '**Simulacro de examen oral:** practicar un examen oral de idiomas con la IA como examinador, dando feedback inmediato.',
+              '**Dictado accesible:** alumnado con dificultades motrices dicta sus redacciones mientras la IA transcribe y estructura el texto.'
+            ]
+          },
+          {
+            t: 'Familia GPT-5.6: Sol, Terra y Luna',
+            ico: '☀️',
+            q: 'Nueva generación de modelos en tres niveles: **Sol** (insignia, razonamiento y programación pesada), **Terra** (equilibrado, trabajo diario) y **Luna** (rápido y económico para tareas repetitivas).',
+            p: 'Elegir la relación coste/inteligencia adecuada según la tarea, ajustando el nivel de "Esfuerzo" (medio/alto/ultra) y la "Velocidad" de ejecución.',
+            e: 'Con Sol en esfuerzo Ultra y varios subagentes activos, la IA trabaja sin interrupción más de 3 horas generando logotipos, renders 3D, una web, pitch decks y estudios de mercado para el lanzamiento completo de una marca.',
+            pasos: [
+              'Abre el selector de modelos en la app.',
+              'Elige Sol, Terra o Luna según la complejidad de la tarea.',
+              'Ajusta Esfuerzo y Velocidad en ajustes avanzados.',
+              'Envía tu petición completa.'
+            ],
+            casos: [
+              '**Proyecto STEAM completo (Sol):** genera en una sola tarea el guion, los materiales, la rúbrica y la presentación final de un proyecto de varias semanas.',
+              '**Corrección exprés (Luna):** corregir en segundos cuestionarios cortos de repaso diario de toda la clase.',
+              '**Adaptaciones curriculares (Terra):** generar versiones adaptadas de una ficha para alumnado con NEE manteniendo los mismos objetivos.',
+              '**Unidad didáctica de aniversario del centro (Sol, esfuerzo alto):** logotipo del proyecto, web de recursos y presentación para las familias en un único encargo.'
+            ]
+          },
+          {
+            t: 'ChatGPT Sites',
+            ico: '🌐',
+            q: 'Herramienta integrada en Work para generar, previsualizar y publicar apps web, minisitios o dashboards directamente desde el chat, con código frontend real.',
+            p: 'Convertir datos estáticos (Excel, informes) en plataformas visuales interactivas —intranets, calculadoras, paneles de cliente— compartibles mediante una URL pública o privada.',
+            e: 'Le pasas el modelo financiero de una constructora y con `@sites` la IA genera una web interactiva con gráficos de riesgo, rentabilidad y costes accesible mediante un enlace para mostrar a directivos.',
+            pasos: [
+              'Abre una nueva tarea en ChatGPT Work.',
+              'Escribe **@sites** para invocar el constructor.',
+              'Describe el sitio que quieres ("panel con los datos de este informe").',
+              'Revisa la previsualización y aprueba la publicación.',
+              'Comparte la URL generada (ej. chatgpt.site/tu-sitio).'
+            ],
+            casos: [
+              '**Web de aula:** una página sencilla con horario, normas y enlaces de recursos de la clase, compartible con las familias.',
+              '**Panel de centro:** convertir los datos de absentismo o rendimiento en un dashboard visual para el equipo directivo.',
+              '**Portal de un proyecto de centro:** página con trabajos, fotos y vídeos de una feria de ciencias, accesible por enlace.',
+              '**Calculadora de notas:** mini-aplicación donde el alumnado introduce sus notas parciales y calcula la nota final automáticamente.'
+            ]
+          },
+          {
+            t: 'Conectores (plugins) y Habilidades (Skills)',
+            ico: '🔌',
+            q: 'Los **conectores** vinculan ChatGPT con apps externas (Drive, Gmail, Slack, Notion...). Las **habilidades** son rutinas preconfiguradas que la IA memoriza para repetir tareas complejas sin reexplicarlas cada vez.',
+            p: 'Orquestar flujos entre distintas apps y programar tareas automáticas recurrentes (ej. cada día a una hora fija).',
+            e: 'Conectas Gmail y programas que cada día a las 8:00 revise la bandeja de entrada y genere borradores de respuesta automáticos para los correos que lo requieran.',
+            pasos: [
+              'Ve a "Complementos" en la barra lateral y conecta la app deseada con tus credenciales.',
+              'Usa **@skill creator** o el panel de habilidades para subir instrucciones de un proceso repetitivo.',
+              'En un chat normal, menciona la herramienta (ej. @gmail) y pide ejecutar la habilidad guardada.',
+              'Programa la periodicidad si lo necesitas ("cada primer día del mes").'
+            ],
+            casos: [
+              '**Correos de familias al día:** cada mañana a las 8:00 se generan borradores de respuesta a los correos pendientes de tutoría.',
+              '**Skill "generador de exámenes":** habilidad guardada que crea exámenes con el mismo formato y dificultad cada vez que se invoca.',
+              '**Sincronización con Google Calendar:** conectar el calendario del centro para que la IA avise de fechas de entrega o reuniones.',
+              '**Resumen de acuerdos de claustro:** conectar Drive para centralizar y resumir automáticamente los acuerdos de las reuniones de ciclo.'
+            ]
+          },
+          {
+            t: 'Guía oficial de prompting de OpenAI',
+            ico: '📘',
+            q: 'Manual oficial con seis estrategias clave para modelos de razonamiento avanzado (series o1/o3 y GPT-5.6), documentado en la plataforma de desarrolladores.',
+            p: 'Optimizar la formulación de prompts para respuestas más precisas, evitando técnicas hoy consideradas contraproducentes en modelos de razonamiento modernos.',
+            e: 'En vez de forzar el clásico "piensa paso a paso", la guía recomienda instrucciones simples y directas, con textos de referencia y etiquetas XML.',
+            pasos: [
+              'Escribe instrucciones claras sin redundancias.',
+              'Aporta textos de referencia para limitar alucinaciones.',
+              'Divide tareas complejas en partes pequeñas.',
+              'Usa delimitadores (XML) para estructurar el contexto.'
+            ],
+            casos: [
+              '**Taller de IA para Bachillerato:** enseñar a escribir mejores prompts para trabajos de investigación aplicando estas estrategias.',
+              '**Mejorar los prompts propios:** el docente aplica "dar textos de referencia" para generar material más fiable y menos genérico.',
+              '**Formación de claustro:** base teórica de un taller de alfabetización en IA para el resto del profesorado.',
+              '**Rúbrica de "buen uso de la IA":** diseñar criterios de evaluación de trabajos de alumnos basados en estas estrategias.'
+            ]
+          },
+          {
+            t: 'Códigos secretos de visualización ("/comandos")',
+            ico: '🔐',
+            q: 'Prompts estandarizados precedidos por "/" que fuerzan a ChatGPT a devolver formatos visuales concretos: diagramas interactivos, notas adhesivas, apuntes a mano o infografías.',
+            p: 'Transformar texto académico denso en material visual fácil de estudiar: simulaciones interactivas, checklists o infografías de corte.',
+            e: 'Un estudiante escribe `/visualize learning proceso de la fotosíntesis` y obtiene una simulación donde puede subir o bajar la luz y el agua para ver cómo reacciona la planta.',
+            pasos: [
+              'Abre un chat normal de ChatGPT.',
+              'Escribe el comando: **/visualize learning** (simulación), **/generate handwrit image** (apuntes a mano), **/sticky notes** (checklist), **/infochat** (gráfico de datos) o **/infograf** (corte/diagrama).',
+              'Añade el tema a continuación (ej. "teorema de Pitágoras") y envía.'
+            ],
+            casos: [
+              '**Ciclo del agua interactivo:** `/visualize learning` para simular el ciclo del agua en clase de Conocimiento del Medio.',
+              '**Apuntes de repaso:** `/generate handwrit image` para crear apuntes visuales antes de un examen.',
+              '**Gráfico de una encuesta de aula:** `/infochat` para transformar los datos de una encuesta de clase en un gráfico fácil de interpretar.',
+              '**Checklist de laboratorio:** `/sticky notes` para generar los pasos de un experimento en formato lista visual.'
+            ]
+          },
+          {
+            t: 'Teclado físico Codex Micro',
+            ico: '⌨️',
+            q: 'Primer dispositivo físico de OpenAI junto a Work Louder: teclado macro con botones configurables, joystick, rueda selectora y LEDs que cambian de color según el estado del agente.',
+            p: 'Controlar agentes de ChatGPT Work y Codex sin ratón: iniciar tareas, aceptar/rechazar cambios, activar dictado por voz y lanzar flujos de trabajo con un botón físico.',
+            e: 'Girar la rueda física para ajustar la profundidad de razonamiento del modelo, o usar el joystick para pedir una revisión de código al instante.',
+            pasos: [
+              'Conecta el dispositivo (unos 230$) al ordenador (Mac o Windows).',
+              'Mapea las teclas con su software para asignar comandos frecuentes.',
+              'Pulsa los botones físicos para ejecutar acciones en la app de escritorio.'
+            ],
+            casos: [
+              '**Aprobación rápida de materiales:** el docente-programador aprueba o rechaza cambios de una app educativa sin soltar el teclado.',
+              '**Botón de "ficha del día":** lanzar con un clic físico la generación de la ficha de refuerzo diaria.',
+              '**Ajuste de dificultad:** usar la rueda para subir o bajar el nivel de los ejercicios generados.',
+              '**Dictado entre clases:** activar el dictado por voz para redactar observaciones de evaluación entre sesión y sesión.'
+            ]
+          },
+          {
+            t: 'ChatGPT camuflado en WhatsApp',
+            ico: '💬',
+            q: 'Método para integrar el asistente oficial de OpenAI directamente en WhatsApp mediante un contacto empresarial verificado.',
+            p: 'Usar edición de imágenes, análisis de datos y generación de texto desde el móvil de forma rápida, dentro de una conversación normal de chat.',
+            e: 'Fotografías la pantalla de tu ordenador con un Excel abierto, la envías por WhatsApp y pides la fórmula para calcular un margen del 10%.',
+            pasos: [
+              'Añade un contacto nuevo a tu agenda.',
+              'Nómbralo "ChatGPT" con el número **+1 800 242 8478**.',
+              'Abre WhatsApp, busca la cuenta verificada y empieza a enviar prompts, notas de voz o imágenes.'
+            ],
+            casos: [
+              '**Duda rápida en el recreo:** resolver desde el móvil una duda de programación de aula sin abrir el portátil.',
+              '**Corrección al vuelo:** fotografiar un ejercicio manuscrito de un alumno y pedir sugerencias de corrección.',
+              '**Traducción instantánea:** traducir al momento una comunicación con una familia extranjera.',
+              '**Idea de última hora:** generar una actividad rápida de repaso justo antes de entrar a clase.'
+            ]
+          },
+          {
+            t: 'ChatGPT Health',
+            ico: '🩺',
+            q: 'Función piloto (EE. UU.) orientada a salud: conecta historiales médicos o datos de apps como Apple Health para analizarlos en modo solo lectura.',
+            p: 'Detectar patrones en actividad física, sueño o medicación, actuando como asistente de bienestar sin sustituir el consejo profesional.',
+            e: 'Conectas tus métricas de Apple Health y le pides que explique la evolución de tu sueño o de tus análisis a lo largo del tiempo.',
+            pasos: [
+              'Accede a integraciones de tu cuenta ChatGPT (regiones y planes compatibles).',
+              'Conecta las credenciales de la app de salud.',
+              'Pregunta por patrones o tendencias en tus datos.'
+            ],
+            casos: [
+              '**Charla de hábitos saludables:** analizar patrones de sueño autoreportados (anonimizados) por el alumnado para una sesión de tutoría.',
+              '**Bienestar docente:** apoyar al profesorado a revisar sus propios patrones de actividad y evitar el desgaste.',
+              '**Material de Educación Física:** ejemplo real de seguimiento de actividad física para explicar el tema en clase.',
+              '**Alfabetización en datos de salud:** enseñar a interpretar un gráfico de tendencia con datos reales y sencillos.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'claude', name: 'Claude & Anthropic', icon: '🧠', color: '#d97757', light: '#f6ddd0',
+        desc: 'Cowork, Code, navegador propio, diseño y buenas prácticas de prompting de Anthropic.',
+        items: [
+          {
+            t: 'Claude Cowork (móvil y nube)',
+            ico: '☁️',
+            q: 'Evolución del agente de Anthropic que trabaja de forma asíncrona en la nube: no requiere el ordenador encendido. Se detiene ante decisiones ambiguas y envía notificación al móvil para que el usuario elija, luego reanuda solo.',
+            p: 'Investigación profunda, organización de operaciones, redacción de documentos/contratos, presentaciones y tareas recurrentes (ej. resúmenes semanales antes de una reunión).',
+            e: 'Tu vuelo se retrasa: Cowork lee el correo, localiza tus reservas de tren y hotel en Gmail/Drive, detecta que perderás el tren y te pregunta al móvil si prefieres un tren nocturno o un hotel cerca del aeropuerto; tú eliges y redacta los correos de cambio.',
+            pasos: [
+              'Abre Claude (web, escritorio o móvil) y selecciona el modo Cowork.',
+              'Escribe una instrucción con resultado concreto, no una orden abierta.',
+              'Puedes cerrar el dispositivo si los archivos están en la nube o conectores.',
+              'Revisa el móvil si Claude necesita tu decisión.',
+              'Verifica el trabajo antes de ejecutar acciones irreversibles.'
+            ],
+            casos: [
+              '**Resumen semanal de ciclo:** preparar el resumen de la programación antes de cada reunión, listo en Drive el lunes por la mañana.',
+              '**Propuesta de proyecto de centro:** investigar y redactar en segundo plano una propuesta (ej. huerto escolar) mientras el docente da clase.',
+              '**Logística de excursión:** organizar permisos, itinerario y contacto con proveedores, avisando al móvil si hay que decidir algo.',
+              '**Comunicados a familias:** redactar borradores sobre eventos del centro, revisables antes de enviarlos.'
+            ]
+          },
+          {
+            t: 'Claude Code 2.0',
+            ico: '💻',
+            q: 'Herramienta de programación agéntica de Anthropic. Su gran salto: los modelos recientes (Opus 5, Fable 5) tienen tanto criterio que se elimina hasta el 80% de las instrucciones rígidas del archivo `claude.md` sin perder rendimiento.',
+            p: 'Desarrollar software localmente, refactorizar código, auditar repositorios y mantener el contexto del proyecto limpio y sin contradicciones.',
+            e: 'Tienes un `claude.md` inflado durante meses. Ejecutas una auditoría interna y Claude detecta qué skills no se usan y recorta tokens innecesarios sin afectar la calidad del código.',
+            pasos: [
+              'Usa Claude Code 2.1.220 o superior.',
+              'Ejecuta **/context** para ver el estado y consumo de tokens del proyecto.',
+              'Ejecuta **/doctor** para que audite tus archivos de instrucciones.',
+              'Revisa las acciones de limpieza propuestas y confírmalas.'
+            ],
+            casos: [
+              '**Mantenimiento del asistente del centro:** auditar las instrucciones de un asistente IA propio para detectar reglas obsoletas.',
+              '**Mejora de una app de biblioteca escolar:** programar pequeñas mejoras a la herramienta interna de préstamos.',
+              '**Optimización de un juego educativo:** refactorizar el código de un juego hecho por el docente para que cargue más rápido en los Chromebooks del aula.',
+              '**Revisión de código de programación por bloques:** auditar un repositorio de recursos antes de usarlo con alumnado.'
+            ]
+          },
+          {
+            t: 'Navegador integrado de Claude (Claude Browser)',
+            ico: '🧭',
+            q: 'A diferencia de extensiones que controlan tu navegador personal, Claude Code incorpora un navegador propio, limpio y aislado (sin acceso a tus cookies o datos personales), que corre en paralelo a la conversación.',
+            p: 'Ciclo completo de desarrollo agéntico: planificar, observar, crear y corregir; probar apps en localhost, auditar visualmente sitios web y seleccionar elementos para editarlos directamente en el código.',
+            e: 'Le pides crear una app interna de propuestas comerciales. Claude escribe el código, arranca un servidor local, prueba el formulario, detecta un fallo y reescribe el código en directo sin que intervengas.',
+            pasos: [
+              'Abre la app de escritorio de Claude, sección "Code".',
+              'Pulsa el icono de globo terráqueo (arriba a la derecha) para abrir el navegador lateral.',
+              'Introduce la URL local o deja que Claude la abra tras arrancarla.',
+              'Usa la selección visual: haz clic en un elemento de la web para pedir su edición en código.'
+            ],
+            casos: [
+              '**Demostración de depuración en vivo:** crear y probar una app de repaso interactivo mientras los alumnos observan cómo se corrige un error, como ejemplo de pensamiento computacional.',
+              '**Auditoría del aula virtual:** revisar visualmente la plataforma del centro para detectar enlaces rotos o problemas de accesibilidad.',
+              '**Accesibilidad web:** seleccionar visualmente un elemento y pedir que se adapte el diseño a alumnado con baja visión.',
+              '**Prueba de un formulario de inscripción:** validar de extremo a extremo el formulario de extraescolares antes de publicarlo.'
+            ]
+          },
+          {
+            t: 'Claude Design 2.0 y Open Design',
+            ico: '🎨',
+            q: '**Claude Design** es la plataforma oficial de Anthropic para UI/UX, animaciones y 3D, ahora sin límites restrictivos. **Open Design** es su alternativa open-source (GitHub) que clona la interfaz y se conecta vía API a distintos modelos (Kimi K3, Fable 5, OpenAI).',
+            p: 'Diseñar apps reales, clonar webs a código, generar sistemas de diseño/branding completos, crear motion graphics y simulaciones 3D interactivas en HTML.',
+            e: 'Subes tu logo y tu web: en menos de 10 minutos genera paleta semántica, tipografías, botones y manual de estilo; con un clic, crea una vista de app móvil respetando esa estética.',
+            pasos: [
+              'Claude Design: elige plantilla (Design System, 3D Object, Animation) o escribe un prompt.',
+              'Responde a las preguntas contextuales de la IA (tiempo, formato).',
+              'Usa el menú "Tweaks" para ajustar colores, narración o partículas en tiempo real.',
+              'Open Design: instala la app (Mac/Windows/Linux), conecta la API del proveedor elegido y pide desarrollos (ej. clonar una web pegando su URL).'
+            ],
+            casos: [
+              '**Identidad visual de un proyecto de centro:** crear en minutos logo, colores y tipografía de una revista escolar o un proyecto Erasmus+.',
+              '**App de emprendimiento educativo:** diseñar un prototipo de app móvil para un proyecto de Secundaria sobre emprendimiento.',
+              '**Ejemplo de diseño UI para Bachillerato Tecnológico:** clonar el diseño de una web de referencia para explicar cómo funciona el diseño de interfaces.',
+              '**Animaciones explicativas:** crear motion graphics sencillos para explicar visualmente un proceso científico como la fotosíntesis.'
+            ]
+          },
+          {
+            t: 'Flujo Claude + Google Flow (vídeos sin rostro)',
+            ico: '🎬',
+            q: 'Flujo que combina a Claude como "cerebro estratégico" (investigación y guion) con Google Flow, Turbo y ElevenLabs para la ejecución audiovisual de vídeos faceless.',
+            p: 'Crear canales de YouTube automatizados de alta viralidad: análisis de competencia, locuciones y sincronización exacta de imágenes con el audio.',
+            e: 'Le das 3 links de la competencia; Claude sugiere 10 ideas y escribe el guion. Generas el audio en ElevenLabs, extraes timestamps con Turbo, y Claude devuelve un prompt visual preciso para cada segundo del vídeo.',
+            pasos: [
+              'Pasa a Claude enlaces de la competencia para analizar ganchos.',
+              'Pide un guion narrativo completo.',
+              'Genera el audio (ElevenLabs/Google AI Studio) y descárgalo.',
+              'Sube el audio a una herramienta de transcripción (Turbo) para timestamps.',
+              'Devuelve tiempos a Claude para que genere prompts visuales por tramo.',
+              'Genera las imágenes/vídeos en Google Flow y edítalos en tu software de vídeo.'
+            ],
+            casos: [
+              '**Canal educativo del centro:** curiosidades semanales sobre ciencia o historia, con guion y vídeo generados con mínimo esfuerzo.',
+              '**Aula invertida (flipped classroom):** producir vídeos explicativos cortos de una unidad didáctica para ver en casa.',
+              '**Cápsulas de repaso para familias:** vídeos breves que ayudan a las familias a apoyar el estudio.',
+              '**Revista digital del colegio:** generar contenido audiovisual regular para el blog o boletín del centro.'
+            ]
+          },
+          {
+            t: 'Automatizar Microsoft Word con Claude',
+            ico: '📝',
+            q: 'Claude como complemento (Add-in) nativo dentro del editor de Word, funcionando en modo agéntico dentro del propio documento.',
+            p: 'Transcribir apuntes a mano, crear propuestas comerciales, insertar portadas/índices, justificar texto, aplicar rebranding corporativo, traducir currículums o redactar contratos.',
+            e: 'Fotografías el acta de una reunión, la subes al panel lateral de Claude en Word y pides: "crea una propuesta comercial, justifica el texto y añade el logo de mi empresa".',
+            pasos: [
+              'Abre Word → pestaña "Inicio" → Complementos (Add-ins).',
+              'Busca y añade "Claude".',
+              'En el panel lateral, sube tu foto o escribe el prompt de lo que necesitas.',
+              'Observa cómo Claude escribe y estructura el documento en la hoja.'
+            ],
+            casos: [
+              '**Actas de evaluación automáticas:** generar el acta a partir de notas manuscritas fotografiadas en la reunión.',
+              '**Circulares con la identidad del centro:** aplicar el formato y logo oficial a todas las comunicaciones en un clic.',
+              '**Digitalizar un examen manuscrito:** convertir una prueba fotografiada en un documento digital editable y bien formateado.',
+              '**Informes de seguimiento individualizados:** redactar y dar formato a informes de alumnado a partir de anotaciones rápidas.'
+            ]
+          },
+          {
+            t: 'Comparativa: Fable 5 vs. GPT-5.6 Sol',
+            ico: '⚔️',
+            q: 'Fable 5 (Anthropic) es el modelo cerrado más potente de Anthropic, un "sabio" que orquesta de forma sobresaliente la programación. GPT-5.6 Sol es más económico (consume la mitad de tokens en muchas tareas) y muy persistente ("como un pitbull").',
+            p: 'Ambos compiten en desarrollo de software completo: landing pages, rebrandings complejos, juegos 3D en navegador.',
+            e: 'Desarrollar un shooter de zombis 3D o rebrandear todo el código open-source de cal.com — ambos lo logran, con distinto coste y estilo.',
+            pasos: [
+              'Abre tu herramienta de código (Claude Code o Cursor).',
+              'Usa **Fable 5 como orquestador** para planificar y dividir tareas complejas.',
+              'Delega en **GPT-5.6 Sol** la ejecución rápida de archivos o el diseño UI para ahorrar tokens.',
+              'Repite el ciclo combinando la potencia de Anthropic con la eficiencia de OpenAI.'
+            ],
+            casos: [
+              '**Fichas diarias sin agotar cuota:** elegir el modelo más económico (Sol) para generar en masa material de repaso diario.',
+              '**Rediseño de la web del centro:** usar Fable 5 como orquestador de un proyecto complejo y Sol para tareas de ejecución rápida.',
+              '**Debate de pensamiento crítico:** comparar ambos modelos con alumnado de un club de programación como ejercicio sobre IA.',
+              '**Decisión de presupuesto TIC:** elegir qué modelo usar según la partida de innovación educativa disponible.'
+            ]
+          },
+          {
+            t: 'System Prompts Docs (documentación oficial)',
+            ico: '📄',
+            q: 'Registro oficial de los "System Prompts" base que configuran el comportamiento por defecto de Claude en sus apps, actualizado periódicamente. Desde la generación 4.6/Fable 5, los identificadores de modelo son snapshots fijos.',
+            p: 'Consultar directrices subyacentes: por ejemplo, que Claude siempre reciba la fecha actual o entregue bloques de código en Markdown puro.',
+            e: 'Revisar el registro de una fecha concreta para entender por qué Fable 5 se comporta de cierta forma en la app web.',
+            pasos: [
+              'Entra a **platform.claude.com/docs**.',
+              'Navega a "Release notes → System prompts".',
+              'Consulta la versión/fecha del modelo que te interesa.',
+              'Replica esas directrices en tus propios desarrollos vía API si quieres emular la experiencia web.'
+            ],
+            casos: [
+              '**Documentar buenas prácticas de centro:** entender por qué el asistente IA del colegio responde de una manera concreta.',
+              '**Diseño de un chatbot escolar propio:** basar su configuración interna en las convenciones oficiales de Anthropic.',
+              '**Formación del equipo de innovación digital:** enseñar cómo se configuran los asistentes de IA "por debajo".',
+              '**Material de FP:** usarlo como recurso de estudio en un módulo de Desarrollo de Aplicaciones sobre IA.'
+            ]
+          },
+          {
+            t: 'Prompting Best Practices Docs',
+            ico: '🧩',
+            q: 'Guía exhaustiva de ingeniería de prompts para los modelos recientes (Fable 5, Opus 4.8, Sonnet 5). Aborda el abandono de técnicas antiguas (como el "pre-fill", deprecado en modelos 4.6+) y el pensamiento adaptativo.',
+            p: 'Estructurar prompts complejos, evitar alucinaciones en código, gestionar contextos largos (+20k tokens) y ajustar la proactividad agéntica.',
+            e: 'Para analizar un corpus largo, colocas todo el contenido envuelto en `<documents>` al principio, pides citas en `<quotes>` y das 3-5 ejemplos en `<example>`.',
+            pasos: [
+              'Asigna un rol/persona en el System Prompt.',
+              'Usa etiquetas XML (`<instructions>`, `<context>`, `<input>`) para estructurar la petición.',
+              'Coloca los documentos largos siempre al principio, antes de las instrucciones.',
+              'Indica qué hacer, no qué evitar (mejor "responde en prosa" que "no uses markdown").',
+              'En razonamiento complejo, usa `thinking: {type: "adaptive"}` y el parámetro de "esfuerzo" en vez del antiguo `budget_tokens`.'
+            ],
+            casos: [
+              '**Prompts estructurados en Bachillerato:** enseñar a usar etiquetas claras para trabajos de investigación con IA.',
+              '**Mejores boletines e informes:** aplicar la guía para reducir errores en los documentos que genera el centro.',
+              '**Guía interna corta:** crear un resumen de "cómo pedir bien las cosas a la IA" para el resto del claustro.',
+              '**Actividad de alfabetización en IA:** diseñar ejercicios de aula con ejemplos reales de esta guía.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'gemini', name: 'Gemini & Google', icon: '✨', color: '#4285f4', light: '#d7e6fd',
+        desc: 'Google Flow, Omni, AI Studio, Antigravity y las filtraciones de Gemini 3.5 Pro.',
+        items: [
+          {
+            t: 'Google Flow: personajes consistentes',
+            ico: '🎞️',
+            q: 'Plataforma visual de Google (Nano Banana 2, Veo 3.1, Gemini OmniFlash) que resuelve "el mayor problema de la IA": mantener un mismo personaje consistente en distintas escenas. Ofrece 50 créditos diarios gratis no acumulables.',
+            p: 'Crear imágenes, animaciones y vídeos con un personaje reutilizable en distintos ángulos, expresiones y entornos sin perder su identidad; extender vídeos o reemplazar fondos/sujetos.',
+            e: 'Creas el avatar "Carla" con una imagen de referencia y luego la colocas con `@Carla` en una cafetería, en Marte con traje de astronauta o escapando de una explosión, siempre con el mismo rostro.',
+            pasos: [
+              'Abre Google Flow → "Nuevo proyecto" → "Personajes".',
+              'Sube una imagen de referencia o usa una hoja de plantilla para definir el personaje.',
+              'Guárdalo con un nombre (ej. Carla).',
+              'Escribe el prompt de la escena mencionando **@Carla**.',
+              'Elige el modelo gratuito (Nano Banana 2 para imagen, OmniFlash para vídeo) y genera.'
+            ],
+            casos: [
+              '**Mascota del centro:** crear un personaje consistente que aparezca en todos los vídeos educativos del curso.',
+              '**Guía de un curso de idiomas:** un personaje que acompaña al alumnado en distintas situaciones (aeropuerto, restaurante...).',
+              '**Cuento educativo ilustrado:** mantener al mismo protagonista en todas las escenas de un cuento de aula.',
+              '**Gamificación de una unidad:** crear un "avatar de la clase" como hilo visual conductor de las actividades.'
+            ]
+          },
+          {
+            t: 'Google Omni (vídeo multimodal)',
+            ico: '🌀',
+            q: 'Modelo de vídeo integrado en Gemini con interacciones multimodales avanzadas: reacciona a disparadores de tiempo y combina vídeo real con elementos generados.',
+            p: 'Crear "influencers" virtuales con lip-sync exacto, ediciones condicionales en momentos precisos, sustitución de fondos y materialización de bocetos en vídeos reales.',
+            e: 'Grabas tu mano abriéndose junto al boceto de una máquina voladora estilo Da Vinci; pides "que el objeto se materialice cuando abra la mano" y Omni genera la animación exacta en ese instante.',
+            pasos: [
+              'Abre Gemini y pulsa "+" para crear vídeo.',
+              'Sube los archivos base (foto/audio para lip-sync, o vídeo base).',
+              'Describe la acción o edición condicional exacta.',
+              'Itera para alargar la escena o cambiar el ángulo.'
+            ],
+            casos: [
+              '**Boceto que cobra vida:** animar un dibujo de un alumno (ej. el ciclo del agua) en el momento exacto que se le indique.',
+              '**Profesor virtual multilingüe:** sincronizar labios de un "profesor virtual" en el idioma que se está estudiando.',
+              '**Recreación histórica:** sustituir el fondo de un vídeo de clase por un escenario histórico para una recreación.',
+              '**Prácticas de laboratorio destacadas:** editar condicionalmente un vídeo resaltando el instante exacto de una reacción química.'
+            ]
+          },
+          {
+            t: 'Google AI Studio y Agentes Antigravity',
+            ico: '🛰️',
+            q: 'Plataforma para desarrolladores con importación directa desde GitHub, URLs permanentes en `ai.studio` y los "Managed Agents" (Antigravity, basados en Gemini 3.5 Flash) que trabajan en segundo plano de forma autónoma.',
+            p: 'Construir y desplegar apps sin programar (vibe coding); Antigravity busca y corrige errores, despliega apps a internet y ejecuta rutinas sin tener el ordenador abierto.',
+            e: 'Diseñas la interfaz en Google Stitch, la exportas a AI Studio y dejas que Antigravity escriba la lógica interna. Cierras el portátil; al volver, la app está terminada y publicada en un enlace propio.',
+            pasos: [
+              'Importa un repo de GitHub o un diseño de Stitch a AI Studio.',
+              'Activa el "modo estricto" (por defecto, por seguridad).',
+              'Da una misión clara en lenguaje natural.',
+              'Crea una URL personalizada para el proyecto final.'
+            ],
+            casos: [
+              '**App de registro de lecturas:** programar sin código una herramienta para que el alumnado registre sus lecturas del trimestre.',
+              '**Autoevaluación interactiva:** desplegar un cuestionario accesible desde una URL propia del centro.',
+              '**Club de robótica:** automatizar la corrección de errores de una app educativa creada por los propios alumnos.',
+              '**Gestión de material TIC:** crear una herramienta interna para el préstamo de portátiles o tablets del aula.'
+            ]
+          },
+          {
+            t: 'Filtraciones de Gemini 3.5 Pro',
+            ico: '🔮',
+            q: 'El próximo modelo insignia, reentrenado desde cero, prometería una ventana de contexto de **2 millones de tokens**, el modelo de imagen "Nano Banana Pro" y un nuevo modo de razonamiento "Deep Think".',
+            p: 'Digerir bases de código enteras o miles de páginas de una vez; "Deep Think" sacrifica velocidad por precisión en lógica, matemáticas y planificación multi-paso.',
+            e: '(Proyectado) Subir todas las consultas de soporte de una empresa y pedir en "Deep Think" una estrategia de contenidos completa junto a la web final con gráficos SVG en un solo intento.',
+            pasos: [
+              'Accede a Gemini y selecciona el modelo 3.5 Pro.',
+              'Activa "Deep Think" para tareas de alta precisión lógica.',
+              'Aporta todo el contexto masivo disponible y pide el entregable final.'
+            ],
+            casos: [
+              '**(Proyectado) Programación anual completa:** subir todo el temario de un curso y pedir una programación coherente en un único intento.',
+              '**(Proyectado) Análisis de centro:** procesar de una vez todas las evaluaciones para detectar tendencias de aprendizaje.',
+              '**(Proyectado) Memoria visual de proyecto:** generar una web con gráficos SVG explicando los resultados de un proyecto de centro.',
+              '**(Proyectado) Preparación de olimpiadas:** resolver problemas de lógica y matemáticas avanzados con el modo "Deep Think".'
+            ]
+          },
+          {
+            t: 'Modo de voz de Gemini para Mac',
+            ico: '🎤',
+            q: 'Integración del modelo de voz avanzado en la app de escritorio de Gemini para macOS: permite pausas, dudas y correcciones naturales mientras la IA limpia las muletillas del diálogo.',
+            p: 'Asistente apoyado en el **contexto visual de tu pantalla** para redactar, editar o resumir de forma más autónoma.',
+            e: 'Con un documento abierto, hablas de forma natural y con titubeos pidiendo que mire tu pantalla y te redacte un resumen estructurado.',
+            pasos: [
+              'Abre la app de Gemini en macOS.',
+              'Inicia el modo de voz y concede permisos de pantalla.',
+              'Habla sobre lo que ves en tu ordenador para que ejecute la acción.'
+            ],
+            casos: [
+              '**Informe de tutoría hablado:** redactar un informe hablando de forma natural mientras la IA estructura el texto.',
+              '**Resumen exprés antes de claustro:** pedir un resumen de una presentación abierta justo antes de una reunión.',
+              '**Práctica oral de idiomas:** conversar con apoyo visual de la pantalla como ejercicio de expresión oral.',
+              '**Edición rápida de una ficha:** dictar los cambios en voz alta para editar un documento de clase al momento.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'notebooklm', name: 'NotebookLM', icon: '📓', color: '#8b5cf6', light: '#e6ddfc',
+        desc: 'Profesor particular, vídeos cinemáticos, máquina de prompts y métodos de estudio avanzados.',
+        items: [
+          {
+            t: 'El Profesor Particular ("Estudia y aprende")',
+            ico: '🎓',
+            q: 'Modalidad dentro de Gemini Notebook (evolución de NotebookLM) que convierte a la IA en tutor adaptativo: evalúa tu nivel inicial, detecta puntos débiles y divide el temario en bloques priorizados.',
+            p: 'Preparar exámenes teóricos, oposiciones o certificaciones a partir de tus propios documentos, transformando teoría densa en lecciones, infografías, presentaciones, vídeos y simuladores interactivos.',
+            e: 'Subes el manual de conducir (201 páginas). El sistema te hace un cuestionario de 15 preguntas, detecta que fallas en tasas de alcoholemia, y genera una lección específica junto a un simulador interactivo de prioridad de paso en intersecciones.',
+            pasos: [
+              'Abre Gemini → "Cuadernos" → "Nuevo cuaderno".',
+              'Elige el modo **"Estudia y aprende"** y define tu objetivo.',
+              'Sube tus fuentes (PDFs, enlaces, documentos de Drive).',
+              'Pulsa "Responder cuestionario" para la evaluación inicial.',
+              'Revisa el panel de "Prioridades principales" de estudio.'
+            ],
+            casos: [
+              '**Preparación de una prueba de nivel:** plan de estudio personalizado para un alumno de 6º antes del examen de acceso.',
+              '**Estudio de oposición docente:** ayudar a un profesor a preparar una oposición a partir de sus propios apuntes.',
+              '**Refuerzo individualizado:** crear un plan a partir de los exámenes previos de un alumno con dificultades.',
+              '**Simuladores de repaso (Canvas):** generar una actividad interactiva sobre un tema concreto del currículo.'
+            ]
+          },
+          {
+            t: 'Vídeos cinemáticos (Cinematic Video Overviews)',
+            ico: '🎥',
+            q: 'Función (plan Ultra, en inglés) que genera un vídeo de ~10 minutos desde el panel Estudio: narrativa coherente, locución, escenas cinemáticas e infografías animadas, citando las fuentes usadas.',
+            p: 'Convertir documentos densos o guiones en contenido audiovisual terminado (nivel YouTube) o en resúmenes visuales muy digeribles.',
+            e: 'Subes un guion sobre "los 1000 días para la revolución de la IA" y el sistema genera un vídeo de 10 minutos con escenas de monjes copiando manuscritos, la imprenta, y gráficas de coste IA vs. radiólogos.',
+            pasos: [
+              'Sube fuentes bien estructuradas (guion literal + guion gráfico funcionan mejor).',
+              'Ve a "Video Overview" y elige la opción **Cinemático**.',
+              'Espera 10-20 minutos a que se genere (en inglés).',
+              'Mejora: anima fotogramas estáticos con Kling 2.5 en Freepik.',
+              'Doblaje: transcribe con TurboScribe y dobla con HeyGen o ElevenLabs V3.'
+            ],
+            casos: [
+              '**Vídeo documental de una unidad:** convertir el guion de una unidad didáctica en un vídeo tipo documental para clase.',
+              '**Resumen de fin de proyecto:** crear un vídeo cinemático de un proyecto de centro para la fiesta de fin de curso.',
+              '**Material atractivo de Historia/Ciencias:** producir contenido con estética cinemática para captar la atención del alumnado.',
+              '**Vídeo resumen para familias:** compartir un resumen audiovisual del curso en la reunión final.'
+            ]
+          },
+          {
+            t: 'Máquina generadora de prompts perfectos',
+            ico: '⚙️',
+            q: 'Usar NotebookLM como consultor experto cuyo conocimiento se limita a las guías oficiales de prompting de las grandes IA (OpenAI, Anthropic, Google, Midjourney...), forzado por un system prompt rígido que evita alucinaciones.',
+            p: 'Dejar de escribir prompts genéricos: la máquina hace 3 preguntas clave y devuelve el prompt optimizado exacto para la plataforma que vas a usar.',
+            e: 'Quieres un vídeo de astronautas en el Everest. El sistema pregunta plataforma/modalidad/objetivo; respondes "Gemini Omni, vídeo, astronautas de noche, cinematográfico" y recibes el prompt perfecto en el formato exacto de Omni.',
+            pasos: [
+              'Crea un cuaderno e inserta las guías oficiales de prompting como fuentes.',
+              'En Configuración, pon el modo "Personalizado" y respuesta "corta".',
+              'Pega en las instrucciones del sistema el rol de "ingeniero experto en prompts" que haga 3 preguntas.',
+              'Responde a sus preguntas y copia el prompt final optimizado.'
+            ],
+            casos: [
+              '**Alfabetización en IA de Secundaria:** enseñar a pedir mejor las cosas a cualquier IA con un asistente que hace las preguntas clave.',
+              '**Prompt de infografía en segundos:** generar rápidamente el prompt exacto para una lámina de ciencias.',
+              '**Exámenes menos genéricos:** optimizar los prompts que usa el centro para generar pruebas más precisas.',
+              '**Asistente de comprensión lectora:** crear un "generador de prompts" propio del departamento de Lengua.'
+            ]
+          },
+          {
+            t: 'Guía de estudio interactiva (Studio)',
+            ico: '🗂️',
+            q: 'Uso del panel "Studio" para generar múltiples formatos didácticos a partir de documentación técnica, con fuentes organizadas mediante etiquetas por tema.',
+            p: 'Aprender materias complejas sin leer manuales enteros: mapas mentales, FAQ, flashcards, cuestionarios y podcasts resumen.',
+            e: 'Subes documentación de Claude Code, Codex y Antigravity, etiquetas por tema, generas un podcast de 23 minutos sobre Antigravity y un cuestionario de 26 preguntas que profundiza en cada fallo.',
+            pasos: [
+              'Sube las fuentes y usa "Etiquetar fuentes" para organizarlas por tema.',
+              'Selecciona solo las fuentes del tema a estudiar.',
+              'Pulsa "Mapa mental" o "Tarjetas didácticas" en el panel de recursos.',
+              'Usa "Cuestionario" y "Mejorar explicación" si fallas una pregunta.'
+            ],
+            casos: [
+              '**Formación de claustro en una plataforma nueva:** convertir su documentación en un curso con mapa mental y quiz.',
+              '**Flashcards de vocabulario:** crear tarjetas de un idioma a partir de las lecturas de la unidad.',
+              '**Podcast de repaso para la excursión:** generar un audio de Conocimiento del Medio para escuchar en el autobús.',
+              '**Autoevaluación con explicación ampliada:** cuestionario que profundiza automáticamente si el alumno falla una pregunta.'
+            ]
+          },
+          {
+            t: 'Flujo híbrido NotebookLM + Gemini Web',
+            ico: '🔗',
+            q: 'Método para evadir los límites de tokens de Gemini Web gratuito: NotebookLM procesa gratis hasta 50 PDFs de 500.000 palabras cada uno, y Gemini Web se reserva solo para la ejecución final (código, Canvas).',
+            p: 'Extraer, limpiar y consolidar datos masivos gratis, y transformarlos después en dashboards HTML/CSS, gráficas SVG o Excel descargables.',
+            e: 'Subes 20 PDFs de auditorías a NotebookLM y pides una tabla consolidada; la copias en Gemini Web vinculando el cuaderno, activas Canvas y pides una presentación HTML interactiva con notas del orador.',
+            pasos: [
+              'Sube los documentos masivos a NotebookLM con un rol experto.',
+              'Pide que extraiga la información en una tabla Markdown limpia.',
+              'En Gemini Web, vincula el cuaderno con "Todos los cuadernos".',
+              'Pega la tabla, activa Canvas y pide el HTML/gráfico/Excel final.'
+            ],
+            casos: [
+              '**Dashboard de rendimiento de la clase:** consolidar gratis 20 exámenes escaneados y generar un panel visual del resultado.',
+              '**Extracción de un libro de texto completo:** organizar el contenido de un PDF extenso para crear materiales derivados.',
+              '**Resumen ejecutivo de reuniones:** analizar varias actas de ciclo y generar un informe para dirección.',
+              '**Memoria de proyectos Erasmus+:** consolidar la documentación de varios proyectos en una única memoria.'
+            ]
+          },
+          {
+            t: 'El Método de Estudio del MIT',
+            ico: '🧪',
+            q: 'Técnica de prompting basada en el método de un estudiante del MIT: en vez de resúmenes, se fuerza a NotebookLM a extraer modelos mentales, discrepancias entre expertos y preguntas de razonamiento profundo de decenas de fuentes contradictorias.',
+            p: 'Dominar cualquier tema en tiempo récord (ej. 48h en vez de 6 meses), fomentando espíritu crítico frente a la memorización.',
+            e: 'Con "Deep Research" reúnes 50 estudios sobre nutrición; pides los 5 modelos mentales centrales, los 3 puntos de desacuerdo entre expertos y 10 preguntas de evaluación extrema — la IA te puntúa y explica tus errores.',
+            pasos: [
+              'Usa "Deep Research" para nutrir el cuaderno con 40-50 fuentes de calidad y distintos puntos de vista.',
+              'Pide los modelos/ideas fundamentales y errores típicos de principiante.',
+              'Pide un segundo análisis: dónde discrepan los expertos y por qué.',
+              'Genera 10 preguntas ordenadas por dificultad para evaluar razonamiento.',
+              'Autoevalúate en el chat y pide puntuación del 0 al 10.',
+              'Prueba Feynman: pide el texto de una charla y explícalo en voz alta.'
+            ],
+            casos: [
+              '**Preparación intensiva de selectividad:** dominar un bloque de temario en tiempo récord con modelos mentales y autoevaluación.',
+              '**Formación rápida del claustro:** aprender un tema nuevo (ej. IA en el aula) con fuentes contrastadas y preguntas de razonamiento.',
+              '**Alumnado de altas capacidades:** profundizar de forma crítica en un tema de interés más allá del currículo.',
+              '**Preparación de oposición docente:** analizar fuentes contradictorias y puntos de desacuerdo entre expertos del temario.'
+            ]
+          },
+          {
+            t: 'Cerebro estratégico para vídeos "faceless"',
+            ico: '🎯',
+            q: 'NotebookLM como director de arte y guionista de un canal automatizado: analiza transcripciones de la competencia para asegurar retención antes de escribir nada.',
+            p: 'Planificar profesionalmente estructura, guion, ganchos y oportunidades de mercado de un vídeo sin rostro.',
+            e: 'Importas 3 transcripciones virales sobre IA; NotebookLM crea un informe estratégico de 6 fases, redacta el guion, y luego generas la voz y una hoja de ruta visual escena a escena para Google Flow.',
+            pasos: [
+              'Sube transcripciones o datos de vídeos exitosos de tu nicho.',
+              'Pide un informe de 6 fases (análisis, ganchos, estructura, lenguaje, oportunidades, propuesta) como "estratega de contenido".',
+              'Guarda el informe como nota y conviértelo en nueva fuente.',
+              'Pide el guion literal basado en ese informe.',
+              'Lleva el guion a un generador de voz en bloques de 2-3 min.',
+              'Genera en Gemini Web la hoja de ruta visual (prompt de imagen por escena) y produce en Google Flow.'
+            ],
+            casos: [
+              '**Canal de YouTube de departamento:** planificar qué formatos funcionan mejor con adolescentes antes de grabar nada.',
+              '**Serie de vídeos de repaso:** diseñar la estructura completa antes de generar el contenido.',
+              '**Campaña de concienciación escolar:** crear el guion de una campaña (acoso escolar, hábitos saludables) con gancho profesional.',
+              '**Proyecto "aula youtuber":** guiar a los propios alumnos en la creación de contenido educativo con este flujo.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'otros', name: 'Otros Modelos de IA', icon: '🌐', color: '#f5a623', light: '#fdecd0',
+        desc: 'Kimi K3, MiniMax, Gemma 4, DeepSeek, NVIDIA y alternativas gratuitas.',
+        items: [
+          {
+            t: 'Kimi K3 (Moonshot AI, China)',
+            ico: '🀄',
+            q: 'Modelo insignia de Moonshot AI (respaldado por Alibaba/Tencent). El de pesos abiertos más grande del mundo (2,8 billones de parámetros), arquitectura MoE con 896 expertos (solo 16 activos por token), contexto de 1M de tokens y visión nativa. Rinde a la par de GPT-5.6 Sol y Fable 5.',
+            p: 'Razonamiento profundo, tareas agénticas prolongadas y desarrollo de software de vanguardia: auditar código enorme, programar videojuegos, frontend, incluso arquitectura de microchips.',
+            e: 'Programar un clon de CS:GO en 3D en el navegador: entorno, físicas y controles generados en apenas 2-3 intentos, de forma autónoma.',
+            pasos: [
+              'Crea cuenta gratuita en la web de Kimi (login con Google disponible).',
+              'Para chat casual, selecciona Kimi K3 y envía tu prompt.',
+              'Para programación agéntica, ve al panel de API, recarga saldo y genera una API Key.',
+              'Introduce la clave en tu agente/editor local, ajusta el esfuerzo de pensamiento y pide el desarrollo.'
+            ],
+            casos: [
+              '**Ejercicios de programación para un club de robótica:** generar a bajo coste grandes lotes de retos de código.',
+              '**Auditoría de proyectos avanzados:** revisar el código de un grupo de alumnos de Bachillerato de Tecnología.',
+              '**Videojuego educativo de aula:** crear un juego sencillo como proyecto de Tecnología.',
+              '**Análisis de currículos completos:** aprovechar su contexto de 1M de tokens para procesar documentos muy largos.'
+            ]
+          },
+          {
+            t: 'MiniMax y Minimax Code',
+            ico: '📦',
+            q: 'Empresa asiática con modelos de lenguaje (M3, 1M tokens), vídeo (Hailuo 2.3) y audio. Su producto estrella, **Minimax Code**, es un agente local autónomo que lee/organiza/edita archivos de tu PC y se controla remotamente vía Telegram.',
+            p: 'Organizar el ordenador, buscar archivos locales, programar apps y generar contenido a distancia sin depender de una interfaz en la nube.',
+            e: 'Desde la playa, escribes a tu bot de Telegram: "busca el reporte de ventas Q3 y mándamelo"; el agente en tu PC de casa lo localiza, extrae un resumen del Excel y te lo envía al chat.',
+            pasos: [
+              'Descarga Minimax Code para tu sistema operativo.',
+              'Haz clic en "Connect mobile".',
+              'Genera un Bot Token en Telegram (BotFather) y vincúlalo.',
+              'Selecciona una carpeta de trabajo (workspace) en tu PC.',
+              'Envía órdenes en lenguaje natural desde Telegram.'
+            ],
+            casos: [
+              '**Organizar recursos del departamento:** ordenar automáticamente la carpeta compartida de materiales didácticos.',
+              '**Generar material desde el móvil:** crear imágenes o textos de aula sin depender del ordenador del centro.',
+              '**Recuperar un documento olvidado:** acceder de forma remota a un archivo dejado en el PC del centro un fin de semana.',
+              '**Gestión de entregas digitales:** automatizar la organización de trabajos entregados por el alumnado.'
+            ]
+          },
+          {
+            t: 'Gemma 4 (modelos locales)',
+            ico: '💾',
+            q: '"El Android de los modelos inteligentes" de Google: familia de pesos abiertos en varios tamaños (E2B/E4B para portátiles, 12B/26B para hardware potente). La comunidad crea fine-tunes especializados, como Gemma 4 Coder.',
+            p: 'Ejecutar IA 100% privada, sin internet, para tareas generales, landing pages y asistencia de código local.',
+            e: 'Con un modelo de 26B en Open Code, generas toda la estructura React + Vite de una landing page de un SaaS sin enviar tu código a servidores externos.',
+            pasos: [
+              'Descarga Ollama o LM Studio.',
+              'Ejecuta **ollama run gemma4:e4b** (~9.6 GB) para el modelo estándar.',
+              'Para fine-tunes de código, descarga el .gguf desde Hugging Face y ejecútalo con Llama CPP.',
+              'Conecta tu editor (Open Code) al puerto local y envía tu prompt.'
+            ],
+            casos: [
+              '**Privacidad de datos de menores:** usar IA sin conexión en centros con restricciones de red o normativa estricta de protección de datos.',
+              '**Landing page de un proyecto de aula:** crear una web sencilla sin depender de servicios externos.',
+              '**Club de programación sin exponer datos:** ofrecer asistencia de código local sin enviar el trabajo del alumnado a servidores externos.',
+              '**Asistente privado del aula de informática:** ejecutar IA local en los equipos del centro cumpliendo la RGPD/LOPDGDD.'
+            ]
+          },
+          {
+            t: 'DeepSeek y el "momento DeepSeek"',
+            ico: '🌊',
+            q: 'Laboratorio chino (modelos V3 y R1). El "momento DeepSeek" describe la sorpresa mundial cuando un modelo abierto y barato igualó el rendimiento de los modelos más caros de EE. UU.',
+            p: 'Razonamiento, matemáticas y programación compleja como orquestador agéntico a coste ínfimo.',
+            e: 'Programar en JS/HTML/CSS puro un sistema para gestionar rutinas de gimnasio, validando que no se repitan ejercicios el mismo día, todo guardado en local storage.',
+            pasos: [
+              'Accede vía la API oficial o intermediarios (ej. NVIDIA).',
+              'Añade la clave de API en tu agente (Hermes, Open Code...).',
+              'Selecciona el modelo (R1 o Coder) y el nivel de razonamiento.',
+              'Lanza tu petición estructurada.'
+            ],
+            casos: [
+              '**Banco de ejercicios de matemáticas:** generar a coste mínimo grandes lotes de problemas para todo un ciclo.',
+              '**Herramientas internas económicas:** programar utilidades sencillas (ej. gestor de rutinas de Educación Física) con bajo presupuesto.',
+              '**Ejemplo de actualidad en Tecnología:** usarlo como caso real de modelos de IA abiertos y su impacto geopolítico.',
+              '**Apoyo en concursos de matemáticas:** resolver problemas de razonamiento avanzado como entrenamiento.'
+            ]
+          },
+          {
+            t: 'Build by NVIDIA (IA gratis)',
+            ico: '🟩',
+            q: 'Plataforma en la nube que da acceso temporal gratuito a más de 80 modelos abiertos (DeepSeek, Qwen, Kimi, Llama, Mistral, Gemma...) a través de una interfaz unificada.',
+            p: 'Evitar pagar múltiples suscripciones y probar qué modelo abierto encaja mejor con tu flujo agéntico, con inferencia rápida en servidores NVIDIA.',
+            e: 'Vinculas la API de NVIDIA a Open Code o Cursor para comparar cómo responden DeepSeek y Qwen al mismo prompt de programación web.',
+            pasos: [
+              'Entra a "Build by NVIDIA" y regístrate (requiere verificación telefónica).',
+              'Elige el modelo y genera una API Key.',
+              'Pega la clave en tu entorno de desarrollo bajo el proveedor NVIDIA.'
+            ],
+            casos: [
+              '**Elegir la IA del centro sin gastar:** probar gratis varios modelos antes de decidir cuál contratar.',
+              '**Formación gratuita al profesorado:** dar acceso puntual a IA avanzada en talleres sin coste para el centro.',
+              '**Comparativa en FP de IA:** que el alumnado compare el rendimiento de varios modelos abiertos.',
+              '**Club STEM sin suscripciones:** experimentar con programación agéntica sin pagar licencias.'
+            ]
+          },
+          {
+            t: 'Voice b (alternativa gratis a ElevenLabs)',
+            ico: '🎙️',
+            q: 'Herramienta gratuita y de código abierto para clonación y generación de voz, que conserva tono, ritmo y emoción a partir de muestras mínimas de audio, en 23 idiomas.',
+            p: 'Generar narraciones y locuciones de vídeo, y hacer dictado por voz inteligente en cualquier aplicación de tu ordenador.',
+            e: 'Subes solo 3 segundos de tu voz, pegas un guion completo y obtienes la locución entera con tu identidad vocal, o dictas manteniendo pulsada una tecla mientras escribes un correo.',
+            pasos: [
+              'Abre Voice b y sube un audio corto (3s) de la voz a clonar.',
+              'Para síntesis: escribe el texto a locutar y genera el audio.',
+              'Para dictado: configura la tecla de acceso rápido y habla mientras la mantienes pulsada.'
+            ],
+            casos: [
+              '**Aula invertida con la voz del docente:** locutar los vídeos aunque el profesor esté ausente ese día.',
+              '**Apoyo a la escritura:** ayudar a alumnado con dificultades motrices a redactar por dictado en cualquier programa.',
+              '**Audiolibros de lecturas obligatorias:** crear versiones en audio de las lecturas del curso.',
+              '**Materiales multilingües para familias:** generar locuciones en varios idiomas para familias de origen extranjero.'
+            ]
+          },
+          {
+            t: 'Agnes AI y Agnes Code',
+            ico: '🇸🇬',
+            q: 'Herramienta emergente de Singapur. Su modelo "Agnes 2.5 Flash" es gratis y sin límites (fase de captación). **Agnes Code** es una app de escritorio agéntica similar a Claude Code que controla archivos del PC de forma autónoma.',
+            p: 'Crear apps web completas, landing pages, storyboards y automatizar tareas de desarrollo local.',
+            e: 'Construyes una app HTML para controlar vencimientos de un negocio (extintores, seguros, licencias) importando CSVs y sincronizando con Google Calendar, todo local.',
+            pasos: [
+              'Usa el chat estándar en la web de Agnes AI (modelo 2.5, generación de imágenes).',
+              'Para programación, instala **Agnes Code** (acepta permisos de antivirus/firewall).',
+              'Selecciona la carpeta de tu PC donde trabajará el agente.',
+              'Envía un prompt detallado y deja que lea, programe y corrija errores solo.'
+            ],
+            casos: [
+              '**Control de vencimientos del centro:** app para gestionar caducidades de extintores, licencias de software o seguros.',
+              '**Alternativa gratuita para clubes de programación:** probar un agente similar a Claude Code sin presupuesto.',
+              '**Storyboards para un cómic educativo:** generar las imágenes base de un proyecto de aula.',
+              '**Automatizar gestión administrativa:** registro de asistencia o materiales del aula sin trabajo manual.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'educativas', name: 'Herramientas Educativas y Creativas', icon: '🎨', color: '#ec4899', light: '#fbdcea',
+        desc: 'Canva, juegos, infografías, audio y trucos de creación de contenido.',
+        items: [
+          {
+            t: 'Canva IA para Educación (Recursos Didácticos)',
+            ico: '🖍️',
+            q: 'Funcionalidad IA de Canva específica para docentes, con currículos oficiales de distintos países. Genera contenido digital o imprimible.',
+            p: 'Crear automáticamente fichas de ejercicios, pizarras online (taxonomía de Bloom, rutinas de pensamiento) y juegos interactivos (Canva Code) con calificación automática.',
+            e: 'Pides una ficha imprimible sobre "el antiguo Egipto"; obtienes un documento editable con preguntas de desarrollo y tipo test. O un juego de "clasificar animales" que envía notas a una hoja de cálculo automáticamente.',
+            pasos: [
+              'Entra en la pestaña "Recursos Didácticos" de Canva.',
+              'Elige el curso/nivel educativo.',
+              'Selecciona "Crear con IA" → ficha, pizarra o juego interactivo.',
+              'Describe la temática y genera.',
+              'Edita, imprime o comparte el enlace para trabajo online.'
+            ],
+            casos: [
+              '**Fichas alineadas al currículo:** crear en segundos material de repaso ajustado al currículo oficial de la comunidad autónoma.',
+              '**Pizarra de pensamiento crítico:** diseñar un mural con la taxonomía de Bloom para una sesión de debate.',
+              '**Juego con calificación automática:** un juego de clasificación que envía las notas a una hoja de cálculo del profesor.',
+              '**Unidad completa en una sesión:** generar portada, fichas y pizarra de una unidad didáctica de una sola vez.'
+            ]
+          },
+          {
+            t: 'Gemini + Canvas para juegos interactivos',
+            ico: '🕹️',
+            q: 'Flujo que aprovecha "Canvas" dentro de Gemini para programar minijuegos funcionales a partir de una imagen o concepto simple.',
+            p: 'Gamificar clases con juegos rápidos jugables en PC o móvil, con cuenta gratuita o de pago.',
+            e: 'Conviertes la foto de un objeto en ilustración "Pixel 3D" y le pides a Gemini que programe un minijuego interactivo para que los alumnos participen.',
+            pasos: [
+              'Pide a Gemini transformar un objeto en imagen estilo Pixel 3D.',
+              'Pulsa "+" → **Canvas**.',
+              'Escribe un prompt simple pidiendo el minijuego.',
+              'Comparte el enlace generado con los alumnos.'
+            ],
+            casos: [
+              '**Minijuego de vocabulario:** convertir el dibujo de un alumno en el personaje de un juego de repaso de palabras.',
+              '**Preguntas y respuestas de cierre de unidad:** un juego rápido para repasar justo antes del examen.',
+              '**Gamificar las tablas de multiplicar:** minijuego jugable desde el móvil para practicar en casa.',
+              '**Juego de valores en tutoría:** actividad colaborativa para trabajar respeto y cooperación.'
+            ]
+          },
+          {
+            t: 'Infografías de corte anatómico (Gemini + UPDF)',
+            ico: '🫀',
+            q: 'Técnica con **Gemini 3.1 Pro** y prompts ultra-detallados para ilustraciones anatómicas de alta precisión (cortes coronales, sagitales), editables después con la herramienta **UPDF**.',
+            p: 'Generar y editar diagramas educativos complejos sobre estructura interna de humanos, animales o insectos: modificar textos, traducir o explicar el contenido.',
+            e: 'Un corte coronal de una abeja reina mostrando sistema nervioso, glándulas y alas, o un corte de la cabeza de un perro mostrando esqueleto y cerebro.',
+            pasos: [
+              'En Gemini, pulsa "+" → Crear imagen → modelo **3.1 Pro**.',
+              'Pega el prompt maestro cambiando el sujeto entre corchetes.',
+              'Genera y descarga la imagen.',
+              'Ábrela en **UPDF** → "De PDF a imagen" → ejecuta **OCR** en español para volverla editable.'
+            ],
+            casos: [
+              '**Láminas de Ciencias Naturales:** anatomía humana o animal totalmente editable para el aula.',
+              '**Material adaptado con menos texto:** versión simplificada de la misma infografía para NEE.',
+              '**Área bilingüe:** traducir la infografía científica al idioma de estudio del programa bilingüe.',
+              '**Proyecto de biodiversidad del huerto escolar:** infografías de anatomía de insectos polinizadores.'
+            ]
+          },
+          {
+            t: 'Infografías de enciclopedia (Gemini vs. ChatGPT + PDNOV)',
+            ico: '📜',
+            q: 'Comparativa de generación de láminas de enciclopedia (texturas hiperrealistas, líneas de tiempo, paneles) entre Google Flow (Nano Banana 2) y ChatGPT 5.6 Sol, editadas con **PDNOV**.',
+            p: 'Diseñar piezas gráficas hiperdetalladas tipo libro de historia/ciencia, desglosando hábitat, biología o ciclo de vida en paneles legibles.',
+            e: 'Una infografía de la mariposa monarca con su brújula solar, ruta de migración y química de defensa, o una lámina de Leonardo da Vinci con línea de tiempo y estudios de vuelo.',
+            pasos: [
+              'En Google Flow, desactiva "agente", elige 16:9 y modelo **Nano Banana 2** (o en ChatGPT: alta resolución, modelo 5.6 Sol).',
+              'Pega el prompt y rellena "tipo de sujeto" y "nombre del sujeto".',
+              'Descarga la infografía.',
+              'Ábrela en **PDNOV**, ejecuta OCR en español y personaliza fuentes o traduce.'
+            ],
+            casos: [
+              '**Galería de personajes históricos:** láminas tipo enciclopedia para decorar el aula de Historia.',
+              '**Biodiversidad y migraciones:** infografías de hábitats y ciclos de vida para un proyecto de Ciencias.',
+              '**Pensamiento crítico sobre IA:** comparar ambas herramientas con el alumnado como actividad sobre sesgos y calidad.',
+              '**Aula por proyectos:** material de pared visualmente atractivo para ambientar el espacio de trabajo.'
+            ]
+          },
+          {
+            t: 'Separador de pistas de audio (Limbus Split Pro)',
+            ico: '🎚️',
+            q: 'App de escritorio construida a medida con Codex/ChatGPT, local y gratuita, que unifica varias herramientas open-source para separar pistas de audio.',
+            p: 'Aislar voz, bombo, caja, platos, coros, bajo, ruido de fondo o efectos vocales de cualquier pista musical.',
+            e: 'Arrastras una canción generada con Suno; el programa devuelve carpetas con la voz aislada, efectos extraídos y batería separada por piezas, listas para karaoke o remezcla.',
+            pasos: [
+              'Pega el prompt largo (proporcionado en PDF) en **Codex** de OpenAI.',
+              'Selecciona el modelo Sol o Terra para que programe la app.',
+              'Instala la aplicación generada.',
+              'Arrastra el audio, marca las pistas a aislar y pulsa "separar y exportar".'
+            ],
+            casos: [
+              '**Karaoke para el festival de fin de curso:** crear pistas sin voz de canciones para la actuación del alumnado.',
+              '**Trabajo de pronunciación en idiomas:** aislar solo la voz de un audio para analizarla con detalle.',
+              '**Educación musical por secciones:** separar instrumentos de una canción para trabajar ritmo y melodía por partes.',
+              '**Limpieza de grabaciones del centro:** quitar el ruido de fondo de un evento antes de compartirlo con las familias.'
+            ]
+          },
+          {
+            t: 'Truco Kling para animar personajes',
+            ico: '🎭',
+            q: 'Combinación de tres herramientas — foto propia, ChatGPT para rediseño de estilo y el modelo de vídeo **Kling 3.0** — para crear un avatar digital animado.',
+            p: 'Generar un personaje que imita tus movimientos y gestos labiales a partir de un vídeo de referencia, sin animadores profesionales.',
+            e: 'Te haces un selfie, ChatGPT lo convierte en dibujo animado, y en Kling ese dibujo mueve labios y cabeza exactamente como tú en tu vídeo grabado.',
+            pasos: [
+              'Hazte una foto frontal.',
+              'Súbela a ChatGPT y pide la transformación de estilo.',
+              'En la plataforma con Kling 3.0 Motion Control, elige "crear vídeo".',
+              'Sube el avatar y tu vídeo hablando; genera la animación sincronizada.'
+            ],
+            casos: [
+              '**Avatar docente narrador:** un personaje que explica las instrucciones de una tarea aunque el profesor no esté presente.',
+              '**Cuentos con personajes animados:** dar vida a un personaje creado por los propios alumnos.',
+              '**Bienvenida personalizada:** vídeos de acogida para el alumnado nuevo del centro.',
+              '**Aula invertida más cercana:** un "presentador" animado que hace más ameno el contenido explicativo.'
+            ]
+          },
+          {
+            t: 'Códigos secretos de ChatGPT para estudiar',
+            ico: '📐',
+            q: 'Los mismos comandos "/" aplicados a contextos educativos de ciencia y datos, forzando salidas visuales en vez de texto plano.',
+            p: 'Facilitar el estudio de conceptos complejos transformándolos en simulaciones, infografías, notas resumen o esquemas a mano.',
+            e: '`/infochat índice de masa corporal` genera un gráfico segmentado con los datos de las distintas medidas.',
+            pasos: [
+              'Abre un chat normal con ChatGPT.',
+              'Escribe el comando: /visualize learning, /generate handwrit image, /sticky notes, /infochat o /infograf.',
+              'Añade el concepto a estudiar y envía.'
+            ],
+            casos: [
+              '**Simulación de la fotosíntesis:** `/visualize learning` para ver interactivamente cómo reacciona una planta.',
+              '**Apuntes visuales de repaso:** `/generate handwrit image` para resúmenes al estilo de notas a mano.',
+              '**Gráficos de una investigación de aula:** `/infochat` para transformar datos recogidos por los alumnos.',
+              '**Diagramas de corte de conceptos:** `/infograf` para explicar la célula o el sistema solar visualmente.'
+            ]
+          },
+          {
+            t: 'Truco de Antigravity para no quemar límites',
+            ico: '🪫',
+            q: 'Estrategia escalonada: usar Stitch y AI Studio Build para el trabajo pesado, reservando el potente agente Antigravity solo para la fase final.',
+            p: 'Evitar agotar el límite semanal gratuito de Antigravity, permitiendo programar apps complejas sin quedarte sin créditos en el primer intento.',
+            e: 'Diseñas toda la interfaz en Stitch, programas base de datos y login en AI Studio, y solo al final enciendes Antigravity para revisar errores y publicar.',
+            pasos: [
+              'Genera la interfaz visual completa en **Google Stitch**.',
+              'Exporta el diseño a **Google AI Studio (Build)** para la lógica interna.',
+              'Descarga los archivos del proyecto ensamblado.',
+              'Usa **Antigravity** solo para corregir errores y desplegar la app final.'
+            ],
+            casos: [
+              '**Planificación por fases en un club de programación:** enseñar a no agotar créditos gratuitos en el primer intento.',
+              '**App de biblioteca escolar con recursos limitados:** desarrollar por fases (diseño, lógica, revisión).',
+              '**Optimizar cuotas gratuitas del departamento:** gestionar el uso de IA con presupuesto ajustado.',
+              '**Ejemplo de gestión de proyectos en Tecnología ESO:** mostrar planificación de recursos como contenido curricular.'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'docs', name: 'Documentación y Noticias', icon: '📚', color: '#64748b', light: '#e2e8f0',
+        desc: 'Guías oficiales de prompting, repositorios de referencia y resumen de actualidad IA.',
+        items: [
+          {
+            t: 'GitHub — openai-cookbook',
+            ico: '📖',
+            q: 'Repositorio oficial de OpenAI con código de ejemplo, guías y notebooks interactivos (93% Python) para lograr tareas comunes con su API.',
+            p: 'Aporta ejemplos listos para construir developer workflows, código asistido por IA, integraciones (MCP Registry) y evaluación de agentes.',
+            e: 'Buscar el notebook de "Agent Improvement Loop with Traces, Evals and Codex" para copiar esa arquitectura en vez de partir de cero.',
+            pasos: [
+              'Crea una cuenta gratuita en OpenAI y obtén tu API key.',
+              'Configura la clave como variable de entorno o en un archivo .env.',
+              'Clona el repositorio y ejecuta los notebooks de Python que necesites.'
+            ],
+            casos: [
+              '**Primer agente en FP de IA:** usar los ejemplos como base para que el alumnado construya su primer agente.',
+              '**Proyecto de fin de ciclo:** adaptar un notebook de evaluación de agentes para el trabajo final.',
+              '**Buenas prácticas de programación con IA:** enseñar con ejemplos reales y documentados.',
+              '**Banco de recursos de un club de programación:** fuente de referencia para proyectos avanzados.'
+            ]
+          },
+          {
+            t: 'Google Gemini API — Prompt Gallery',
+            ico: '🖼️',
+            q: 'Galería interactiva de prompts probados dentro de Google AI Studio, con catálogo visual de casos de uso multimodales.',
+            p: 'Explorar e inspirarse con ideas de prompts funcionales para tareas de procesamiento de datos e imágenes.',
+            e: 'El prompt "Recipe to JSON": subes la foto de un plato y obtienes los ingredientes en JSON estructurado.',
+            pasos: [
+              'Accede a la Prompt Gallery de Gemini API.',
+              'Navega por categorías (Audio Diarization, Marketing writer...).',
+              'Abre el ejemplo directamente en Google AI Studio.',
+              'Adapta el prompt a tus propios datos.'
+            ],
+            casos: [
+              '**"Receta a JSON" en clase de estructuras de datos:** un caso cercano (recetas de cocina) para explicar JSON.',
+              '**Base de un tutor de matemáticas propio:** adaptar el ejemplo de tutor como asistente de refuerzo.',
+              '**Casos reales para Bachillerato Tecnológico:** mostrar usos concretos de una API de IA.',
+              '**Actividades multimodales:** inspirarse en ejemplos con imagen y texto combinados.'
+            ]
+          },
+          {
+            t: 'Prompt design strategies (Gemini API)',
+            ico: '🗺️',
+            q: 'Documentación técnica oficial de Google sobre diseño de prompts para Gemini 3 y 3.5: system instructions, etiquetas XML, formatos de salida y control de parámetros.',
+            p: 'Evitar alucinaciones, forzar salidas estrictas (JSON), configurar personalidad y calibrar flujos agénticos (adaptabilidad, persistencia, riesgo).',
+            e: 'Configurar el System Instruction para que Gemini actúe como redactor gubernamental casual, forzado por few-shot a devolver un resumen de reseñas en JSON estricto.',
+            pasos: [
+              'Define las System Instructions: persona, formato y reglas.',
+              'Estructura el prompt con etiquetas XML (`<context>`, `<task>`).',
+              'Usa few-shot con 3-5 ejemplos consistentes.',
+              'Mantén Temperature/TopK por defecto en modelos 3.x.'
+            ],
+            casos: [
+              '**Prompts más precisos en el claustro:** enseñar a estructurar peticiones con etiquetas claras.',
+              '**Asistente de biblioteca escolar:** diseñar su system prompt con reglas y ejemplos concretos.',
+              '**Competencia digital en Bachillerato:** formar en ingeniería de prompts como contenido curricular.',
+              '**Exámenes en formato reutilizable:** mejorar prompts para generar pruebas en JSON exportable.'
+            ]
+          },
+          {
+            t: 'OpenAI Prompt Engineering Guide (AI Horizon)',
+            ico: '🧭',
+            q: 'Recurso educativo que resume y enlaza la guía oficial de OpenAI sobre las 6 estrategias clave de prompting para LLMs.',
+            p: 'Marco teórico y tácticas concretas: instrucciones claras, textos de referencia, división de tareas complejas, dar tiempo a pensar y probar sistemáticamente.',
+            e: 'Alguien aprendiendo vibe coding con malos resultados aplica "dividir tareas complejas" en lugar de pedir todo el software en una sola instrucción.',
+            pasos: [
+              'Accede al portal de AI Horizon.',
+              'Lee el resumen de las 6 estrategias.',
+              'Consulta el enlace a la documentación oficial de OpenAI para profundizar.'
+            ],
+            casos: [
+              '**Taller de formación al profesorado:** base teórica para un curso de uso responsable y eficaz de la IA.',
+              '**Dividir tareas en proyectos de Secundaria:** enseñar a fragmentar un trabajo complejo con IA.',
+              '**Rúbrica de "buen prompt":** diseñar criterios de evaluación de trabajos de investigación con IA.',
+              '**Guía interna del centro:** referencia para redactar normas propias de uso de IA.'
+            ]
+          },
+          {
+            t: 'Reddit: guía de prompting de modelos de razonamiento',
+            ico: '💬',
+            q: 'Hilo en r/Bard donde la comunidad discute la guía de OpenAI para prompts en modelos de razonamiento (o1, o3-mini) y si aplica también a Gemini.',
+            p: 'Descubre que forzar el "piensa paso a paso" ahora **perjudica** el rendimiento de los modelos de razonamiento modernos.',
+            e: 'En vez de pedir 20 pasos de razonamiento, se escribe una petición directa y estructurada, dejando que el modelo razone internamente.',
+            pasos: [
+              'Elimina frases como "piensa paso a paso" o "razona tu respuesta".',
+              'Mantén instrucciones simples y directas.',
+              'Usa delimitadores para organizar los datos de entrada.',
+              'Si necesitas más reflexión, da directrices de longitud en vez de forzar pasos.'
+            ],
+            casos: [
+              '**Debate en Bachillerato Tecnológico:** cómo cambian las técnicas de IA con la evidencia empírica de la comunidad.',
+              '**Actualizar prácticas del centro:** dejar atrás técnicas de prompting ya obsoletas.',
+              '**Alfabetización mediática:** comparar fuentes oficiales frente a experiencia real de usuarios.',
+              '**Pensamiento crítico digital:** contrastar documentación oficial con debate comunitario.'
+            ]
+          },
+          {
+            t: 'Noticias: China golpea con Kimi 3',
+            ico: '📰',
+            q: 'Análisis del lanzamiento de Kimi K3, el modelo de pesos abiertos más grande del mundo (2.8B parámetros).',
+            p: 'Alternativa open-source que rinde casi al nivel de Fable 5 y GPT-5.6 Sol, cambiando la geopolítica de la IA.',
+            e: 'Un desarrollador europeo despliega los pesos en un servidor privado para evitar restricciones comerciales de EE. UU.',
+            pasos: [
+              'Evaluar el consumo real de tokens (Kimi puede necesitar hasta 133M por tarea).',
+              'Comparar coste práctico frente a suscripción de OpenAI ($19-$199).',
+              'Integrar vía API o suscripción según el resultado.'
+            ],
+            casos: [
+              '**Actualidad en Tecnología/Valores:** debatir geopolítica de la IA y modelos abiertos frente a cerrados.',
+              '**Presupuesto de innovación del centro:** comparar costes reales entre alternativas de IA.',
+              '**Comprensión lectora de divulgación científica:** trabajar un texto de actualidad tecnológica.',
+              '**Software libre y ético:** base de debate en Tecnología y Digitalización.'
+            ]
+          },
+          {
+            t: 'Noticias: China responde, OpenAI ataca, NotebookLM sorprende',
+            ico: '📰',
+            q: 'Resumen semanal: transformación de NotebookLM en Gemini Notebook, el teclado Codex Micro y el navegador propio de Claude Code.',
+            p: 'Retrata la "guerra de tokens": límites de uso muy expandidos y herramientas cada vez más independientes.',
+            e: 'Trabajar en Claude Code, abrir su navegador integrado, seleccionar visualmente una tarjeta HTML y pedir su edición automática.',
+            pasos: [
+              'Usa las apps de escritorio de ChatGPT/Claude para aprovechar límites ampliados.',
+              'Prueba las nuevas funciones de carpetas locales y navegación nativa.'
+            ],
+            casos: [
+              '**Boletín semanal para el claustro:** mantener informado al profesorado de las novedades gratuitas disponibles.',
+              '**Aprovechar límites ampliados en evaluaciones:** detectar ventanas de uso más generoso en épocas de mucha carga.',
+              '**Competencia digital docente (CDD):** actividad de actualidad para trabajar esta competencia.',
+              '**Decidir qué probar primero:** priorizar nuevas funciones según necesidad real del aula.'
+            ]
+          },
+          {
+            t: 'Ranking de herramientas de IA (Tier List)',
+            ico: '🏆',
+            q: 'Clasificación rápida de IAs actuales según utilidad real en el mercado (agencia CenteIA).',
+            p: 'Decidir qué IA usar según la tarea sin perder tiempo probando todas.',
+            e: 'Para buscar y comparar fuentes, elegir Perplexity ("Alto"); para analizar un PDF largo, elegir NotebookLM ("Oro").',
+            pasos: [
+              'Consultar la tabla antes de empezar: Oro = Claude, NotebookLM, Make.com.',
+              'Alto = ChatGPT, Perplexity.',
+              'Medio = Gemini, Copilot, Zapier, Gamma (revisar mucho).',
+              'Evitar = Apple Intelligence (se queda corta).'
+            ],
+            casos: [
+              '**Guía rápida docente:** referencia para decidir qué IA usar en cada tarea del día a día.',
+              '**Formación inicial de un claustro:** evitar perder tiempo probando herramientas poco útiles.',
+              '**Política de centro sobre IA:** base para recomendar herramientas concretas al alumnado.',
+              '**Análisis crítico en Bachillerato:** actividad sobre cómo se evalúan las herramientas digitales.'
+            ]
+          },
+          {
+            t: 'Noticias: ChatGPT controla tu PC / error de Claude / ¿decepción de Opus 5?',
+            ico: '📰',
+            q: 'Actualización del modo de voz avanzado GPT Live para Mac/Windows, filtración de datos por error de indexación en Claude, y debate sobre el rendimiento real de Opus 5.',
+            p: 'Muestra cómo las IA ganan capacidades agénticas de pantalla, y alerta sobre riesgos de privacidad y benchmarks engañosos.',
+            e: 'Iniciar una llamada de voz en ChatGPT y pedir "mira mi pantalla y hazme una tabla resumen de la última página".',
+            pasos: [
+              'Para ChatGPT: da permisos de "computer use" y pide acciones por voz.',
+              'Para Opus 5: ten en cuenta que consume hasta 40.000 tokens frente a los 17.000 de GPT-5.6 Sol — úsalo con cautela en tu plan Pro.'
+            ],
+            casos: [
+              '**Ciberseguridad en Tecnología:** ejemplo de actualidad para trabajar privacidad de datos.',
+              '**Debate ético en tutoría:** riesgos y beneficios de dar control de pantalla a una IA.',
+              '**Aviso de precaución al claustro:** recordar cuidado al usar modo agéntico con datos de alumnado.',
+              '**Alfabetización mediática sobre benchmarks:** comparar de forma crítica el marketing frente al rendimiento real.'
+            ]
+          }
+        ]
+      }
+    ]
+  };
+
+  // ---------- App state ----------
+  const App = {
+    view: 'home',          // 'home' | categoryId | 'search'
+    query: '',
+    expanded: new Set(),   // keys "catId::idx" of open cards
+    theme: localStorage.getItem('dia-theme') || 'auto'
+  };
+
+  const contentEl = document.getElementById('content');
+  const viewTitle = document.getElementById('viewTitle');
+  const viewSubtitle = document.getElementById('viewSubtitle');
+  const navScroll = document.getElementById('navScroll');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+
+  function totalItems() {
+    return DATA.categories.reduce((s, c) => s + c.items.length, 0);
+  }
+
+  function fmt(str) {
+    if (!str) return '';
+    return str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  }
+
+  function highlight(str, q) {
+    if (!q) return fmt(str);
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + esc + ')', 'ig');
+    return fmt(str).replace(re, '<mark>$1</mark>');
+  }
+
+  function renderSidebarNav() {
+    navScroll.innerHTML = '';
+    const homeBtn = document.createElement('button');
+    homeBtn.className = 'nav-btn' + (App.view === 'home' ? ' active' : '');
+    homeBtn.style.setProperty('--cat-btn-color', 'var(--accent-light)');
+    homeBtn.innerHTML = '<span class="nav-ico">🏠</span><span>Inicio</span>';
+    homeBtn.addEventListener('click', () => { App.view = 'home'; App.query=''; document.getElementById('searchInput').value=''; render(); });
+    navScroll.appendChild(homeBtn);
+
+    DATA.categories.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'nav-btn' + (App.view === cat.id ? ' active' : '');
+      btn.style.setProperty('--cat-btn-color', cat.light);
+      btn.innerHTML = `<span class="nav-ico">${cat.icon}</span><span>${cat.name}</span><span class="nav-count">${cat.items.length}</span>`;
+      btn.addEventListener('click', () => { App.view = cat.id; App.query=''; document.getElementById('searchInput').value=''; render(); closeMobileSidebar(); });
+      navScroll.appendChild(btn);
+    });
+  }
+
+  function cardTemplate(item, cat, key, q) {
+    const isOpen = App.expanded.has(key);
+    const casosHtml = (item.casos || []).map((c, i) => `
+      <div class="caso-item"><span class="caso-num">${i + 1}</span><span>${highlight(c, q)}</span></div>
+    `).join('');
+    return `
+      <div class="tool-card ${isOpen ? 'open' : ''}" data-key="${key}" style="--cat-color:${cat.color}; --cat-light:${cat.light};">
+        <div class="card-head">
+          <div class="card-ico">${item.ico}</div>
+          <div class="card-title">${highlight(item.t, q)}</div>
+          <div class="chevron">▾</div>
+        </div>
+        <div class="card-body">
+          <div class="card-body-inner">
+            <div class="field">
+              <div class="field-label">🔍 Qué es</div>
+              <div class="field-text">${highlight(item.q, q)}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">⚙️ Para qué sirve</div>
+              <div class="field-text">${highlight(item.p, q)}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">💡 Ejemplo de uso</div>
+              <div class="example-box">${highlight(item.e, q)}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">🛠️ Proceso paso a paso</div>
+              <ol class="steps">${item.pasos.map(p => `<li>${highlight(p, q)}</li>`).join('')}</ol>
+            </div>
+            <div class="casos-box">
+              <div class="casos-title">🎓 4 casos de uso práctico (educativo)</div>
+              <div class="casos-grid">${casosHtml}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function attachCardEvents(container) {
+    container.querySelectorAll('.tool-card').forEach(card => {
+      const head = card.querySelector('.card-head');
+      head.addEventListener('click', () => {
+        const key = card.dataset.key;
+        if (App.expanded.has(key)) { App.expanded.delete(key); card.classList.remove('open'); }
+        else { App.expanded.add(key); card.classList.add('open'); }
+      });
+    });
+  }
+
+  function renderHome() {
+    viewTitle.innerHTML = '🏠 Inicio';
+    viewSubtitle.textContent = 'Panorama general del cuaderno "Duelo de IA: GPT-5.6 Sol contra Fable 5"';
+
+    const stats = `
+      <div class="stat-grid">
+        <div class="stat-card"><div class="num">71</div><div class="lbl">Fuentes originales</div></div>
+        <div class="stat-card"><div class="num">${DATA.categories.length}</div><div class="lbl">Categorías temáticas</div></div>
+        <div class="stat-card"><div class="num">${totalItems()}</div><div class="lbl">Herramientas documentadas</div></div>
+        <div class="stat-card"><div class="num">${totalItems() * 4}</div><div class="lbl">Casos de uso educativo</div></div>
+      </div>`;
+
+    const tiles = DATA.categories.map(cat => `
+      <div class="cat-tile" data-cat="${cat.id}" style="--tile-color:${cat.color};">
+        <div class="ico">${cat.icon}</div>
+        <h3>${cat.name}</h3>
+        <p>${cat.desc}</p>
+        <span class="count-badge">${cat.items.length} herramientas</span>
+      </div>`).join('');
+
+    contentEl.innerHTML = stats + `<div class="cat-grid">${tiles}</div>`;
+    contentEl.querySelectorAll('.cat-tile').forEach(tile => {
+      tile.addEventListener('click', () => { App.view = tile.dataset.cat; render(); });
+    });
+  }
+
+  function renderCategory(catId) {
+    const cat = DATA.categories.find(c => c.id === catId);
+    if (!cat) { App.view = 'home'; return renderHome(); }
+    viewTitle.innerHTML = `${cat.icon} ${cat.name}`;
+    viewSubtitle.textContent = cat.desc;
+    const cardsHtml = cat.items.map((item, idx) => cardTemplate(item, cat, `${cat.id}::${idx}`, '')).join('');
+    contentEl.innerHTML = `<div class="card-grid">${cardsHtml}</div>`;
+    attachCardEvents(contentEl);
+  }
+
+  function renderSearch(query) {
+    viewTitle.innerHTML = `🔎 Resultados de búsqueda`;
+    const q = query.trim();
+    const results = [];
+    DATA.categories.forEach(cat => {
+      cat.items.forEach((item, idx) => {
+        const haystack = (item.t + ' ' + item.q + ' ' + item.p + ' ' + item.e + ' ' + item.pasos.join(' ') + ' ' + (item.casos || []).join(' ')).toLowerCase();
+        if (haystack.includes(q.toLowerCase())) {
+          results.push({ item, cat, idx });
+        }
+      });
+    });
+    viewSubtitle.textContent = `${results.length} resultado(s) para "${query}"`;
+
+    if (!results.length) {
+      contentEl.innerHTML = `<div class="empty-state"><div class="big">🕳️</div>No se encontró ninguna herramienta que coincida con tu búsqueda.</div>`;
+      return;
+    }
+    const cardsHtml = results.map(r => cardTemplate(r.item, r.cat, `${r.cat.id}::${r.idx}`, q)).join('');
+    contentEl.innerHTML = `<div class="search-meta">Mostrando resultados de todas las categorías</div><div class="card-grid">${cardsHtml}</div>`;
+    attachCardEvents(contentEl);
+  }
+
+  function render() {
+    renderSidebarNav();
+    if (App.query) renderSearch(App.query);
+    else if (App.view === 'home') renderHome();
+    else renderCategory(App.view);
+  }
+
+  // ---------- Search ----------
+  const searchInput = document.getElementById('searchInput');
+  let searchTimer = null;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    const val = e.target.value;
+    searchTimer = setTimeout(() => {
+      App.query = val.trim();
+      render();
+    }, 180);
+  });
+
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  function applyTheme() {
+    if (App.theme === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+      themeLabel.textContent = 'Modo automático';
+    } else {
+      document.documentElement.setAttribute('data-theme', App.theme);
+      themeLabel.textContent = App.theme === 'dark' ? 'Modo oscuro' : 'Modo claro';
+    }
+  }
+  themeToggle.addEventListener('click', () => {
+    App.theme = App.theme === 'auto' ? 'dark' : (App.theme === 'dark' ? 'light' : 'auto');
+    localStorage.setItem('dia-theme', App.theme);
+    applyTheme();
+  });
+  applyTheme();
+
+  // ---------- Mobile sidebar ----------
+  const menuToggle = document.getElementById('menuToggle');
+  function openMobileSidebar() { sidebar.classList.add('open'); overlay.classList.add('show'); }
+  function closeMobileSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+  menuToggle.addEventListener('click', openMobileSidebar);
+  overlay.addEventListener('click', closeMobileSidebar);
+
+  // ---------- Init ----------
+  render();
+});
+</script>
+</body>
+</html>
