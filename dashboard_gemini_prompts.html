@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemini — Casos de Uso y Prompts Listos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f9fe;
+    --surface: #ffffff;
+    --surface-alt: #e9f1fe;
+    --accent: #4285f4;
+    --accent-light: #d7e6fd;
+    --accent-dark: #2a63c9;
+    --text: #1b2534;
+    --text-muted: #5c6b85;
+    --border: #dbe6fb;
+    --shadow: 0 2px 12px rgba(66,133,244,0.09);
+    --prompt-bg: #0e1830;
+    --prompt-text: #dde9ff;
+    --prompt-accent: #8ab4ff;
+    --g-blue: #4285f4;
+    --g-red: #ea4335;
+    --g-yellow: #fbbc05;
+    --g-green: #34a853;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1424;
+    --surface: #161f34;
+    --surface-alt: #1c2740;
+    --accent: #7aa9ff;
+    --accent-light: #24345c;
+    --accent-dark: #a9c6ff;
+    --text: #e7edfb;
+    --text-muted: #8fa0c4;
+    --border: #283256;
+    --shadow: 0 2px 16px rgba(0,0,0,0.4);
+    --prompt-bg: #060c1c;
+    --prompt-text: #cfe0ff;
+    --prompt-accent: #8ab4ff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1424;
+      --surface: #161f34;
+      --surface-alt: #1c2740;
+      --accent: #7aa9ff;
+      --accent-light: #24345c;
+      --accent-dark: #a9c6ff;
+      --text: #e7edfb;
+      --text-muted: #8fa0c4;
+      --border: #283256;
+      --shadow: 0 2px 16px rgba(0,0,0,0.4);
+      --prompt-bg: #060c1c;
+      --prompt-text: #cfe0ff;
+      --prompt-accent: #8ab4ff;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .card-title, .brand { font-family: 'Outfit', sans-serif; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 24px 70px;
+  }
+
+  /* ---------- Header ---------- */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand .logo {
+    font-size: 2.2rem;
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-light);
+    border-radius: 16px;
+  }
+  .brand h1 {
+    margin: 0; font-size: 1.6rem; font-weight: 800;
+    background: linear-gradient(90deg, var(--g-blue), var(--g-red), var(--g-yellow), var(--g-green));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .brand .sub { color: var(--text-muted); font-size: 0.9rem; margin-top: 2px; }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .num { font-size: 1.7rem; font-weight: 800; color: var(--accent); }
+  .stat-card .lbl { color: var(--text-muted); font-size: 0.8rem; margin-top: 2px; }
+
+  /* ---------- Tool filter chips ---------- */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .search-row {
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .search-row input {
+    width: 100%;
+    padding: 13px 18px 13px 42px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-row input:focus { border-color: var(--accent); }
+  .search-row::before {
+    content: '🔎';
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .search-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0 0 20px 4px;
+  }
+
+  /* ---------- Cards ---------- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 20px 6px;
+  }
+  .card-num {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-ico { font-size: 1.4rem; }
+  .card-title { font-size: 1.02rem; font-weight: 700; line-height: 1.3; margin-top: 1px; }
+
+  .tool-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin: 10px 20px 0;
+    width: fit-content;
+  }
+
+  .card-body { padding: 12px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+  .field-text { font-size: 0.87rem; line-height: 1.55; }
+  .field-text strong { color: var(--text); }
+
+  .example-box {
+    background: var(--surface-alt);
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--accent);
+  }
+
+  .prompt-box {
+    background: var(--prompt-bg);
+    color: var(--prompt-text);
+    border-radius: 14px;
+    padding: 14px 15px 12px;
+    position: relative;
+    margin-top: 2px;
+  }
+  .prompt-box .prompt-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .prompt-box .prompt-label span {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--prompt-accent);
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(138,180,255,0.14);
+    border: 1px solid rgba(138,180,255,0.4);
+    color: var(--prompt-accent);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: rgba(138,180,255,0.25); }
+  .copy-btn.copied { background: var(--prompt-accent); color: #08183a; border-color: var(--prompt-accent); }
+  .prompt-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .big { font-size: 2.4rem; margin-bottom: 10px; }
+
+  mark {
+    background: var(--accent-light);
+    color: var(--text);
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+
+  .footer-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 40px;
+    line-height: 1.6;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="brand">
+      <div class="logo">✨</div>
+      <div>
+        <h1>Gemini — Casos de Uso y Prompts</h1>
+        <div class="sub">Solo fuentes de Gemini / Google del cuaderno "Duelo de IA"</div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro">🌗 <span id="themeLabel">Modo automático</span></button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num">5</div><div class="lbl">Herramientas de Gemini</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Ejemplos de uso (2 por herramienta)</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Prompts listos para copiar</div></div>
+    <div class="stat-card"><div class="num">9</div><div class="lbl">Fuentes originales cubiertas</div></div>
+  </div>
+
+  <div class="chip-row" id="chipRow"></div>
+
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="Buscar herramienta, palabra clave o prompt...">
+  </div>
+  <div class="search-meta" id="searchMeta"></div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <div class="footer-note">Generado a partir de las fuentes de Gemini/Google del cuaderno de NotebookLM "Duelo de IA: GPT-5.6 Sol contra Fable 5".<br>Solo 5 herramientas distintas de Gemini aparecen en las fuentes, así que aquí tienes <strong>2 ejemplos y prompts por herramienta</strong> (10 en total) en vez de 10 herramientas distintas.<br>Los prompts son plantillas de partida: sustituye lo que esté entre corchetes por tus datos.</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const TOOLS = {
+    flow: { name: 'Google Flow', ico: '🎞️' },
+    omni: { name: 'Google Omni', ico: '🌀' },
+    studio: { name: 'AI Studio / Antigravity', ico: '🛰️' },
+    pro35: { name: 'Gemini 3.5 Pro (filtrado)', ico: '🔮' },
+    voz: { name: 'Voz de Gemini (Mac)', ico: '🎤' }
+  };
+
+  const ITEMS = [
+    {
+      tool: 'flow',
+      t: 'Personaje de aula consistente',
+      q: 'Google Flow (Nano Banana 2, Veo 3.1, OmniFlash) resuelve mantener un mismo personaje reconocible en distintas escenas.',
+      p: 'Crear una mascota o guía visual del aula que aparezca siempre igual en todo el material del curso.',
+      e: 'Creas al explorador espacial "Rayo" con una imagen de referencia y lo guardas como personaje reutilizable.',
+      prompt: 'Crea un personaje llamado "Rayo", un explorador espacial amigable para niños de 6º de Primaria, y guárdalo con una hoja de plantilla de referencia. Genera una escena de @Rayo explicando las fases de la Luna delante de una pizarra, en estilo ilustración infantil colorida.'
+    },
+    {
+      tool: 'flow',
+      t: 'Misma mascota en varias escenas',
+      q: 'Una vez guardado el personaje, Google Flow lo mantiene idéntico al cambiar de entorno, ángulo o expresión.',
+      p: 'Ilustrar un mismo concepto en distintos contextos sin perder la identidad visual del personaje guía.',
+      e: 'Usas a @Rayo para explicar el ciclo del agua en tres escenas distintas, siempre con el mismo aspecto.',
+      prompt: 'Usando el personaje guardado @Rayo, genera 3 escenas distintas donde explica el ciclo del agua: en la orilla del mar, sobre una nube y dentro de una gota de agua gigante. Mantén su apariencia idéntica en las tres, estilo cartoon plano en 16:9.'
+    },
+    {
+      tool: 'omni',
+      t: 'Boceto que cobra vida',
+      q: 'Google Omni combina vídeo real con elementos generados, reaccionando a un disparador de tiempo exacto.',
+      p: 'Animar el dibujo de un alumno en el instante preciso que se indique en un vídeo grabado.',
+      e: 'Un boceto de volcán entra en erupción justo cuando el alumno abre la mano en el vídeo.',
+      prompt: 'Tengo un vídeo de mi mano abriéndose y el dibujo escaneado de un volcán hecho por un alumno. Genera una animación donde el volcán del dibujo entra en erupción en el momento exacto en que mi mano se abre, en vista de cámara lateral.'
+    },
+    {
+      tool: 'omni',
+      t: 'Profesor virtual con lip-sync',
+      q: 'Omni sincroniza los labios de una imagen con un audio dado, generando un vídeo hablado realista.',
+      p: 'Crear una figura de "profesor virtual" que explique un tema con voz y gesto sincronizados.',
+      e: 'Subes tu foto y un audio en inglés sobre el sistema solar para generar un vídeo explicativo con lip-sync.',
+      prompt: 'Sube esta foto mía y este audio en inglés explicando el sistema solar. Sincroniza los labios exactamente con el audio para crear un vídeo de "profesor virtual" que pueda usar en la pizarra digital del aula.'
+    },
+    {
+      tool: 'studio',
+      t: 'App sin código con Antigravity',
+      q: 'Google AI Studio permite construir apps sin programar; el agente Antigravity revisa y corrige errores en segundo plano.',
+      p: 'Desplegar una herramienta funcional para el aula sin necesidad de saber programación.',
+      e: 'Antigravity escribe la lógica de una app de registro de lecturas y la publica en una URL propia.',
+      prompt: 'Antigravity, actuando en modo estricto: escribe la lógica interna (base de datos y formulario) de una app donde el alumnado registre los libros que ha leído este trimestre, revisa errores de compilación y despliega el proyecto con una URL en ai.studio.'
+    },
+    {
+      tool: 'studio',
+      t: 'Cuestionario de autoevaluación',
+      q: 'AI Studio también sirve para crear utilidades pequeñas y específicas, como cuestionarios interactivos con corrección automática.',
+      p: 'Generar actividades de autoevaluación desplegables por enlace, sin depender de otra plataforma.',
+      e: 'Un cuestionario de 10 preguntas sobre los ríos de España, con corrección automática y mensaje final.',
+      prompt: 'Crea en AI Studio un cuestionario de autoevaluación de 10 preguntas sobre "los ríos de España" para 5º de Primaria, con corrección automática y un mensaje final distinto según el número de aciertos. Despliega el resultado en una URL que pueda compartir con mis alumnos.'
+    },
+    {
+      tool: 'pro35',
+      t: 'Programación didáctica anual (proyectado)',
+      q: 'Las filtraciones apuntan a un contexto de 2M de tokens y un modo "Deep Think" para tareas de alta precisión lógica.',
+      p: 'Procesar de una sola vez un currículo completo y generar documentación coherente de principio a fin.',
+      e: 'Subir el currículo oficial completo de una asignatura y pedir la programación anual en un único intento.',
+      prompt: '(Función proyectada) Con el modelo 3.5 Pro en modo Deep Think, analiza el currículo oficial completo de Matemáticas de 6º de Primaria (adjunto en PDF) y genera una programación didáctica anual coherente, dividida por trimestres, con objetivos, contenidos y criterios de evaluación, en un solo documento.'
+    },
+    {
+      tool: 'pro35',
+      t: 'Análisis masivo de evaluaciones (proyectado)',
+      q: 'El contexto masivo permitiría digerir múltiples documentos extensos a la vez sin perder coherencia entre ellos.',
+      p: 'Detectar tendencias de aprendizaje cruzando los resultados de varias evaluaciones del curso completo.',
+      e: 'Subir los resultados de las 4 evaluaciones del curso y pedir un informe de tendencias por área y alumno.',
+      prompt: '(Función proyectada) Sube los resultados de las 4 evaluaciones del curso (varios PDFs) y, en modo Deep Think, detecta tendencias de aprendizaje por área y por alumno, generando un informe con recomendaciones de refuerzo específicas para cada caso.'
+    },
+    {
+      tool: 'voz',
+      t: 'Informe de tutoría hablado',
+      q: 'El modo de voz de Gemini en Mac limpia muletillas y dudas naturales mientras redacta lo que dices, apoyándose en el contexto visual de la pantalla.',
+      p: 'Redactar documentos de seguimiento hablando con naturalidad en vez de escribir manualmente.',
+      e: 'Con el documento de tutoría abierto, hablas de las observaciones del día y la IA las estructura por alumno.',
+      prompt: 'Mira el documento que tengo abierto con las observaciones de tutoría de hoy. A medida que te hable, aunque dude o me corrija, redáctame un resumen estructurado y profesional de cada alumno mencionado.'
+    },
+    {
+      tool: 'voz',
+      t: 'Resumen exprés antes de una reunión',
+      q: 'El asistente de voz puede leer lo que hay en pantalla y resumirlo oralmente al momento, sin necesidad de escribir nada.',
+      p: 'Obtener un resumen rápido de un documento o presentación justo antes de necesitarlo.',
+      e: 'Minutos antes del claustro, pides un resumen oral de los puntos clave de la presentación abierta en pantalla.',
+      prompt: 'Antes de mi reunión de claustro en 5 minutos, mira la presentación que tengo abierta en pantalla y hazme un resumen oral de los 3 puntos clave que debo comentar.'
+    }
+  ];
+
+  const grid = document.getElementById('cardGrid');
+  const searchInput = document.getElementById('searchInput');
+  const searchMeta = document.getElementById('searchMeta');
+  const chipRow = document.getElementById('chipRow');
+  const State = { activeTool: 'all', query: '' };
+
+  function highlight(str, q) {
+    if (!q) return str;
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + esc + ')', 'ig');
+    return str.replace(re, '<mark>$1</mark>');
+  }
+
+  function renderChips() {
+    const counts = { all: ITEMS.length };
+    Object.keys(TOOLS).forEach(k => { counts[k] = ITEMS.filter(i => i.tool === k).length; });
+
+    const chips = [{ key: 'all', label: '✨ Todas', count: counts.all }]
+      .concat(Object.keys(TOOLS).map(k => ({ key: k, label: `${TOOLS[k].ico} ${TOOLS[k].name}`, count: counts[k] })));
+
+    chipRow.innerHTML = chips.map(c => `
+      <button class="chip ${State.activeTool === c.key ? 'active' : ''}" data-key="${c.key}">${c.label} (${c.count})</button>
+    `).join('');
+
+    chipRow.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        State.activeTool = btn.dataset.key;
+        renderChips();
+        render();
+      });
+    });
+  }
+
+  function cardTemplate(item, idx, q) {
+    const tool = TOOLS[item.tool];
+    return `
+      <div class="tool-card" data-idx="${idx}">
+        <div class="card-head">
+          <div class="card-num">${idx + 1}</div>
+          <div class="card-ico">${tool.ico}</div>
+          <div class="card-title">${highlight(item.t, q)}</div>
+        </div>
+        <div class="tool-badge">${tool.ico} ${tool.name}</div>
+        <div class="card-body">
+          <div>
+            <div class="field-label">🔍 Qué es</div>
+            <div class="field-text">${highlight(item.q, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">⚙️ Para qué sirve</div>
+            <div class="field-text">${highlight(item.p, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">💡 Ejemplo de uso</div>
+            <div class="example-box">${highlight(item.e, q)}</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-label">
+              <span>✨ Prompt listo para copiar</span>
+              <button class="copy-btn" data-idx="${idx}" aria-label="Copiar prompt">📋 Copiar</button>
+            </div>
+            <div class="prompt-text">${highlight(item.prompt, q)}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function attachCopyEvents() {
+    grid.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        const text = ITEMS[idx].prompt;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerHTML;
+          btn.innerHTML = '✅ Copiado';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('copied');
+          }, 1600);
+        }).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btn.innerHTML = '✅ Copiado';
+          setTimeout(() => { btn.innerHTML = '📋 Copiar'; }, 1600);
+        });
+      });
+    });
+  }
+
+  function render() {
+    const q = State.query.trim();
+    const filtered = [];
+    ITEMS.forEach((item, idx) => {
+      if (State.activeTool !== 'all' && item.tool !== State.activeTool) return;
+      const haystack = (item.t + ' ' + item.q + ' ' + item.p + ' ' + item.e + ' ' + item.prompt + ' ' + TOOLS[item.tool].name).toLowerCase();
+      if (!q || haystack.includes(q.toLowerCase())) filtered.push({ item, idx });
+    });
+
+    searchMeta.textContent = q ? `${filtered.length} resultado(s) para "${State.query}"` : `Mostrando ${filtered.length} de ${ITEMS.length} ejemplos`;
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="big">🕳️</div>No se encontró ningún ejemplo que coincida con tu búsqueda.</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(f => cardTemplate(f.item, f.idx, q)).join('');
+    attachCopyEvents();
+  }
+
+  let searchTimer = null;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    const val = e.target.value;
+    searchTimer = setTimeout(() => { State.query = val; render(); }, 180);
+  });
+
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  const AppTheme = { current: localStorage.getItem('gemini-dash-theme') || 'auto' };
+  function applyTheme() {
+    if (AppTheme.current === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+      themeLabel.textContent = 'Modo automático';
+    } else {
+      document.documentElement.setAttribute('data-theme', AppTheme.current);
+      themeLabel.textContent = AppTheme.current === 'dark' ? 'Modo oscuro' : 'Modo claro';
+    }
+  }
+  themeToggle.addEventListener('click', () => {
+    AppTheme.current = AppTheme.current === 'auto' ? 'dark' : (AppTheme.current === 'dark' ? 'light' : 'auto');
+    localStorage.setItem('gemini-dash-theme', AppTheme.current);
+    applyTheme();
+  });
+  applyTheme();
+
+  // ---------- Init ----------
+  renderChips();
+  render();
+});
+</script>
+</body>
+</html>
