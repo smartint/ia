@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemini + Canvas para Juegos — Casos de Uso y Prompts Listos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fef7f2;
+    --surface: #ffffff;
+    --surface-alt: #fce3d3;
+    --accent: #ea580c;
+    --accent-light: #fbdcc1;
+    --accent-dark: #a83e08;
+    --text: #2b1d12;
+    --text-muted: #8f7256;
+    --border: #f6dcc4;
+    --shadow: 0 2px 12px rgba(234,88,12,0.12);
+    --prompt-bg: #241207;
+    --prompt-text: #fbe4d1;
+    --prompt-accent: #fb923c;
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1109;
+    --surface: #271910;
+    --surface-alt: #301f13;
+    --accent: #fb923c;
+    --accent-light: #4a2d15;
+    --accent-dark: #fdba74;
+    --text: #fbebda;
+    --text-muted: #c4a382;
+    --border: #3d2914;
+    --shadow: 0 2px 16px rgba(0,0,0,0.4);
+    --prompt-bg: #150c05;
+    --prompt-text: #f6ddc3;
+    --prompt-accent: #fb923c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1109;
+      --surface: #271910;
+      --surface-alt: #301f13;
+      --accent: #fb923c;
+      --accent-light: #4a2d15;
+      --accent-dark: #fdba74;
+      --text: #fbebda;
+      --text-muted: #c4a382;
+      --border: #3d2914;
+      --shadow: 0 2px 16px rgba(0,0,0,0.4);
+      --prompt-bg: #150c05;
+      --prompt-text: #f6ddc3;
+      --prompt-accent: #fb923c;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .card-title, .brand { font-family: 'Outfit', sans-serif; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 24px 70px;
+  }
+
+  /* ---------- Header ---------- */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand .logo {
+    font-size: 2.2rem;
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-light);
+    border-radius: 16px;
+  }
+  .brand h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--accent-dark); }
+  .brand .sub { color: var(--text-muted); font-size: 0.9rem; margin-top: 2px; }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .num { font-size: 1.7rem; font-weight: 800; color: var(--accent); }
+  .stat-card .lbl { color: var(--text-muted); font-size: 0.8rem; margin-top: 2px; }
+
+  /* ---------- Tool filter chips ---------- */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.active { background: var(--accent); color: #2b1607; border-color: var(--accent); }
+
+  .search-row {
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .search-row input {
+    width: 100%;
+    padding: 13px 18px 13px 42px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-row input:focus { border-color: var(--accent); }
+  .search-row::before {
+    content: '🔎';
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .search-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0 0 20px 4px;
+  }
+
+  /* ---------- Cards ---------- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 20px 6px;
+  }
+  .card-num {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #2b1607;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-ico { font-size: 1.4rem; }
+  .card-title { font-size: 1.02rem; font-weight: 700; line-height: 1.3; margin-top: 1px; }
+
+  .tool-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin: 10px 20px 0;
+    width: fit-content;
+  }
+
+  .card-body { padding: 12px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+  .field-text { font-size: 0.87rem; line-height: 1.55; }
+  .field-text strong { color: var(--text); }
+
+  .example-box {
+    background: var(--surface-alt);
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--accent);
+  }
+
+  .prompt-box {
+    background: var(--prompt-bg);
+    color: var(--prompt-text);
+    border-radius: 14px;
+    padding: 14px 15px 12px;
+    position: relative;
+    margin-top: 2px;
+  }
+  .prompt-box .prompt-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .prompt-box .prompt-label span {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--prompt-accent);
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(251,146,60,0.16);
+    border: 1px solid rgba(251,146,60,0.45);
+    color: var(--prompt-accent);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: rgba(251,146,60,0.28); }
+  .copy-btn.copied { background: var(--prompt-accent); color: #2b1607; border-color: var(--prompt-accent); }
+  .prompt-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .big { font-size: 2.4rem; margin-bottom: 10px; }
+
+  mark {
+    background: var(--accent-light);
+    color: var(--text);
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+
+  .footer-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 40px;
+    line-height: 1.6;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="brand">
+      <div class="logo">🎮</div>
+      <div>
+        <h1>Gemini + Canvas para Juegos Interactivos</h1>
+        <div class="sub">Solo la fuente de "Gemini AI para crear juegos interactivos" del cuaderno "Duelo de IA"</div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro">🌗 <span id="themeLabel">Modo automático</span></button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num">6</div><div class="lbl">Capacidades del flujo</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Ejemplos de uso</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Prompts listos para copiar</div></div>
+    <div class="stat-card"><div class="num">1</div><div class="lbl">Fuente original cubierta</div></div>
+  </div>
+
+  <div class="chip-row" id="chipRow"></div>
+
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="Buscar capacidad, palabra clave o prompt...">
+  </div>
+  <div class="search-meta" id="searchMeta"></div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <div class="footer-note">Generado a partir de la fuente "Cómo Crear Juegos Interactivos con Gemini AI en Minutos | Tutorial para Maestros" del cuaderno de NotebookLM "Duelo de IA: GPT-5.6 Sol contra Fable 5".<br><strong>Importante:</strong> este flujo es distinto del Canva IA para Educación (Recursos Didácticos) que ya tiene su propio dashboard — aquí "Canvas" es la función de programación interactiva integrada en <strong>Google Gemini</strong>, no Canva. Se organiza en <strong>6 capacidades</strong>; "Tipos de minijuegos" tiene 3 ejemplos, y "Estilizar imagen" y "Accesible con cuenta gratuita" tienen 2 cada una, para llegar a los 10 pedidos.<br>Los prompts se escriben directamente en el chat de Gemini. Sustituye lo que esté entre corchetes por tus datos.</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const TOOLS = {
+    estilizar: { name: 'Estilizar imagen (Pixel 3D)', ico: '🖌️' },
+    canvas: { name: 'Activar Canvas', ico: '➕' },
+    tipos: { name: 'Tipos de minijuegos', ico: '🕹️' },
+    compartir: { name: 'Compartir mediante enlace', ico: '🔗' },
+    dispositivos: { name: 'Jugar en PC o móvil', ico: '📱' },
+    gratuito: { name: 'Accesible con cuenta gratuita', ico: '🆓' }
+  };
+
+  const ITEMS = [
+    {
+      tool: 'estilizar',
+      t: 'Convertir un objeto de aula en personaje de juego',
+      q: 'Gemini puede transformar la foto de un objeto cualquiera en una ilustración estilo "Pixel 3D" como primer paso antes de programar el juego.',
+      p: 'Crear un elemento visual atractivo y con estética de videojuego a partir de cualquier objeto cotidiano.',
+      e: 'Fotografiar una manzana del aula y convertirla en un personaje Pixel 3D para un juego de nutrición.',
+      prompt: 'Convierte esta foto de una manzana en una ilustración estilo Pixel 3D, con colores vivos y aspecto de videojuego retro, para usarla después como personaje de un minijuego sobre alimentación saludable.'
+    },
+    {
+      tool: 'estilizar',
+      t: 'Crear un set de personajes con estilo consistente',
+      q: 'Se puede repetir la transformación de estilo con varios objetos manteniendo coherencia visual en el juego.',
+      p: 'Dotar a todo un juego de una estética visual unificada antes de programarlo.',
+      e: 'Transformar varias fotos de animales en el mismo estilo Pixel 3D para un juego de clasificación.',
+      prompt: 'Convierte estas 5 fotos de animales (perro, gato, pájaro, pez, insecto) en ilustraciones estilo Pixel 3D, manteniendo el mismo estilo visual y paleta de colores en todas, para usarlas como personajes de un juego de clasificación de animales.'
+    },
+    {
+      tool: 'canvas',
+      t: 'Activar Canvas para pasar de imagen a juego',
+      q: 'Pulsando el símbolo "+" de la interfaz y seleccionando Canvas se activa el modo de programación interactiva de Gemini.',
+      p: 'Pasar de generar imágenes estáticas a generar código funcional de un juego jugable.',
+      e: 'Activar Canvas justo después de haber generado la imagen del personaje.',
+      prompt: 'Activa Canvas y, usando la imagen del personaje que acabas de generar, programa un minijuego simple donde el jugador debe hacer clic en el personaje correcto entre varias opciones que aparecen en pantalla, sumando puntos por cada acierto.'
+    },
+    {
+      tool: 'tipos',
+      t: 'Juego de clasificación con los personajes estilizados',
+      q: 'Canvas puede programar juegos de clasificación donde el alumnado arrastra o selecciona elementos según una categoría.',
+      p: 'Repasar categorías o clasificaciones de contenido de forma interactiva y visual.',
+      e: 'Un juego donde el alumnado clasifica los animales estilizados en vertebrados e invertebrados.',
+      prompt: 'Con las imágenes de animales que has generado, programa en Canvas un juego donde el alumnado debe clasificarlos arrastrándolos a dos columnas: "vertebrados" e "invertebrados", mostrando el número de aciertos al final.'
+    },
+    {
+      tool: 'tipos',
+      t: 'Juego de memoria con parejas',
+      q: 'También se pueden programar juegos de memoria clásicos usando las imágenes generadas como cartas.',
+      p: 'Trabajar memoria visual y vocabulario de una unidad de forma lúdica.',
+      e: 'Un juego de memoria con parejas de vocabulario en inglés usando ilustraciones Pixel 3D.',
+      prompt: 'Programa en Canvas un juego de memoria con 8 parejas de cartas usando ilustraciones estilo Pixel 3D de objetos de la unidad de vocabulario en inglés, mostrando un contador de intentos y de tiempo.'
+    },
+    {
+      tool: 'tipos',
+      t: 'Juego de preguntas con puntuación',
+      q: 'Canvas también puede generar juegos tipo quiz con preguntas y un sistema de puntuación integrado.',
+      p: 'Convertir un repaso de contenidos en una experiencia de juego con feedback inmediato.',
+      e: 'Un juego de preguntas sobre el sistema solar con puntos y una pantalla final de resultado.',
+      prompt: 'Programa en Canvas un minijuego de preguntas tipo quiz sobre el sistema solar, con 10 preguntas de opción múltiple, puntuación acumulada, y una pantalla final que muestre el resultado y un mensaje según la puntuación obtenida.'
+    },
+    {
+      tool: 'compartir',
+      t: 'Compartir el juego con el enlace generado',
+      q: 'Una vez generado, el juego se puede copiar y compartir mediante un enlace directo.',
+      p: 'Permitir que el alumnado acceda al juego sin necesidad de instalar nada ni tener cuenta propia.',
+      e: 'Compartir el enlace del juego generado en el grupo de clase o el aula virtual.',
+      prompt: 'Genera el enlace para compartir este juego que acabamos de crear en Canvas, y explícame cómo debo pegarlo en el aula virtual del centro para que mis alumnos puedan jugar directamente desde el enlace.'
+    },
+    {
+      tool: 'dispositivos',
+      t: 'Comprobar que el juego funciona en PC y en móvil',
+      q: 'Los juegos generados en Canvas funcionan tanto en ordenador como en teléfono móvil sin adaptaciones adicionales.',
+      p: 'Permitir que el alumnado juegue desde cualquier dispositivo disponible en casa o en el aula.',
+      e: 'Comprobar que el juego se ve y funciona bien tanto en el ordenador del aula como en el móvil de un alumno.',
+      prompt: 'Antes de compartir este juego con mis alumnos, comprueba y ajusta si es necesario el diseño para que se vea y funcione correctamente tanto en pantalla de ordenador como en un móvil en formato vertical.'
+    },
+    {
+      tool: 'gratuito',
+      t: 'Crear el juego sin necesidad de plan de pago',
+      q: 'Esta funcionalidad de Canvas está disponible incluso con una cuenta gratuita de Gemini, sin necesidad de suscripción.',
+      p: 'Permitir que cualquier docente gamifique sus clases sin coste añadido para el centro.',
+      e: 'Confirmar que se puede generar el juego completo usando solo la cuenta gratuita.',
+      prompt: 'Estoy usando la cuenta gratuita de Gemini. Confirma que puedes generarme igualmente en Canvas un minijuego funcional de repaso de las tablas de multiplicar, sin que necesite ninguna función de pago.'
+    },
+    {
+      tool: 'gratuito',
+      t: 'Crear varios juegos a lo largo del curso sin coste',
+      q: 'Al ser gratuito, se puede repetir el proceso tantas veces como se necesite durante el curso escolar.',
+      p: 'Mantener el aula gamificada de forma recurrente sin preocuparse por límites de uso ni suscripciones.',
+      e: 'Planificar la creación de un minijuego nuevo cada mes para cada unidad didáctica.',
+      prompt: 'Quiero crear un minijuego nuevo cada mes para repasar la unidad correspondiente, usando siempre la cuenta gratuita de Gemini. Ayúdame a diseñar una plantilla de prompt reutilizable que solo tenga que adaptar cambiando el tema cada vez.'
+    }
+  ];
+
+  const grid = document.getElementById('cardGrid');
+  const searchInput = document.getElementById('searchInput');
+  const searchMeta = document.getElementById('searchMeta');
+  const chipRow = document.getElementById('chipRow');
+  const State = { activeTool: 'all', query: '' };
+
+  function highlight(str, q) {
+    if (!q) return str;
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + esc + ')', 'ig');
+    return str.replace(re, '<mark>$1</mark>');
+  }
+
+  function renderChips() {
+    const counts = { all: ITEMS.length };
+    Object.keys(TOOLS).forEach(k => { counts[k] = ITEMS.filter(i => i.tool === k).length; });
+
+    const chips = [{ key: 'all', label: '🎮 Todas', count: counts.all }]
+      .concat(Object.keys(TOOLS).map(k => ({ key: k, label: `${TOOLS[k].ico} ${TOOLS[k].name}`, count: counts[k] })));
+
+    chipRow.innerHTML = chips.map(c => `
+      <button class="chip ${State.activeTool === c.key ? 'active' : ''}" data-key="${c.key}">${c.label} (${c.count})</button>
+    `).join('');
+
+    chipRow.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        State.activeTool = btn.dataset.key;
+        renderChips();
+        render();
+      });
+    });
+  }
+
+  function cardTemplate(item, idx, q) {
+    const tool = TOOLS[item.tool];
+    return `
+      <div class="tool-card" data-idx="${idx}">
+        <div class="card-head">
+          <div class="card-num">${idx + 1}</div>
+          <div class="card-ico">${tool.ico}</div>
+          <div class="card-title">${highlight(item.t, q)}</div>
+        </div>
+        <div class="tool-badge">${tool.ico} ${tool.name}</div>
+        <div class="card-body">
+          <div>
+            <div class="field-label">🔍 Qué es</div>
+            <div class="field-text">${highlight(item.q, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">⚙️ Para qué sirve</div>
+            <div class="field-text">${highlight(item.p, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">💡 Ejemplo de uso</div>
+            <div class="example-box">${highlight(item.e, q)}</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-label">
+              <span>✨ Prompt listo para copiar</span>
+              <button class="copy-btn" data-idx="${idx}" aria-label="Copiar prompt">📋 Copiar</button>
+            </div>
+            <div class="prompt-text">${highlight(item.prompt, q)}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function attachCopyEvents() {
+    grid.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        const text = ITEMS[idx].prompt;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerHTML;
+          btn.innerHTML = '✅ Copiado';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('copied');
+          }, 1600);
+        }).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btn.innerHTML = '✅ Copiado';
+          setTimeout(() => { btn.innerHTML = '📋 Copiar'; }, 1600);
+        });
+      });
+    });
+  }
+
+  function render() {
+    const q = State.query.trim();
+    const filtered = [];
+    ITEMS.forEach((item, idx) => {
+      if (State.activeTool !== 'all' && item.tool !== State.activeTool) return;
+      const haystack = (item.t + ' ' + item.q + ' ' + item.p + ' ' + item.e + ' ' + item.prompt + ' ' + TOOLS[item.tool].name).toLowerCase();
+      if (!q || haystack.includes(q.toLowerCase())) filtered.push({ item, idx });
+    });
+
+    searchMeta.textContent = q ? `${filtered.length} resultado(s) para "${State.query}"` : `Mostrando ${filtered.length} de ${ITEMS.length} ejemplos`;
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="big">🕳️</div>No se encontró ningún ejemplo que coincida con tu búsqueda.</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(f => cardTemplate(f.item, f.idx, q)).join('');
+    attachCopyEvents();
+  }
+
+  let searchTimer = null;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    const val = e.target.value;
+    searchTimer = setTimeout(() => { State.query = val; render(); }, 180);
+  });
+
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  const AppTheme = { current: localStorage.getItem('gemini-canva-juegos-dash-theme') || 'auto' };
+  function applyTheme() {
+    if (AppTheme.current === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+      themeLabel.textContent = 'Modo automático';
+    } else {
+      document.documentElement.setAttribute('data-theme', AppTheme.current);
+      themeLabel.textContent = AppTheme.current === 'dark' ? 'Modo oscuro' : 'Modo claro';
+    }
+  }
+  themeToggle.addEventListener('click', () => {
+    AppTheme.current = AppTheme.current === 'auto' ? 'dark' : (AppTheme.current === 'dark' ? 'light' : 'auto');
+    localStorage.setItem('gemini-canva-juegos-dash-theme', AppTheme.current);
+    applyTheme();
+  });
+  applyTheme();
+
+  // ---------- Init ----------
+  renderChips();
+  render();
+});
+</script>
+</body>
+</html>
