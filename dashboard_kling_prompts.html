@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kling — Casos de Uso y Prompts Listos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fdf9f1;
+    --surface: #ffffff;
+    --surface-alt: #f6ead1;
+    --accent: #d97706;
+    --accent-light: #f6e2ba;
+    --accent-dark: #92400e;
+    --text: #2a2015;
+    --text-muted: #8a7757;
+    --border: #f0e0bb;
+    --shadow: 0 2px 12px rgba(217,119,6,0.12);
+    --prompt-bg: #221708;
+    --prompt-text: #f8e9cd;
+    --prompt-accent: #fbbf24;
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1408;
+    --surface: #271d0e;
+    --surface-alt: #302411;
+    --accent: #fbbf24;
+    --accent-light: #4a3714;
+    --accent-dark: #fcd34d;
+    --text: #f9f0dc;
+    --text-muted: #c1ac82;
+    --border: #3d2e14;
+    --shadow: 0 2px 16px rgba(0,0,0,0.4);
+    --prompt-bg: #130d05;
+    --prompt-text: #f3e2bc;
+    --prompt-accent: #fbbf24;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1408;
+      --surface: #271d0e;
+      --surface-alt: #302411;
+      --accent: #fbbf24;
+      --accent-light: #4a3714;
+      --accent-dark: #fcd34d;
+      --text: #f9f0dc;
+      --text-muted: #c1ac82;
+      --border: #3d2e14;
+      --shadow: 0 2px 16px rgba(0,0,0,0.4);
+      --prompt-bg: #130d05;
+      --prompt-text: #f3e2bc;
+      --prompt-accent: #fbbf24;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .card-title, .brand { font-family: 'Outfit', sans-serif; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 24px 70px;
+  }
+
+  /* ---------- Header ---------- */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand .logo {
+    font-size: 2.2rem;
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-light);
+    border-radius: 16px;
+  }
+  .brand h1 { margin: 0; font-size: 1.6rem; font-weight: 800; color: var(--accent-dark); }
+  .brand .sub { color: var(--text-muted); font-size: 0.9rem; margin-top: 2px; }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .num { font-size: 1.7rem; font-weight: 800; color: var(--accent-dark); }
+  .stat-card .lbl { color: var(--text-muted); font-size: 0.8rem; margin-top: 2px; }
+
+  /* ---------- Tool filter chips ---------- */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.active { background: var(--accent); color: #241a08; border-color: var(--accent); }
+
+  .search-row {
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .search-row input {
+    width: 100%;
+    padding: 13px 18px 13px 42px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-row input:focus { border-color: var(--accent); }
+  .search-row::before {
+    content: '🔎';
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .search-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0 0 20px 4px;
+  }
+
+  /* ---------- Cards ---------- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 20px 6px;
+  }
+  .card-num {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #241a08;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-ico { font-size: 1.4rem; }
+  .card-title { font-size: 1.02rem; font-weight: 700; line-height: 1.3; margin-top: 1px; }
+
+  .tool-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin: 10px 20px 0;
+    width: fit-content;
+  }
+
+  .card-body { padding: 12px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+  .field-text { font-size: 0.87rem; line-height: 1.55; }
+  .field-text strong { color: var(--text); }
+
+  .example-box {
+    background: var(--surface-alt);
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--accent);
+  }
+
+  .prompt-box {
+    background: var(--prompt-bg);
+    color: var(--prompt-text);
+    border-radius: 14px;
+    padding: 14px 15px 12px;
+    position: relative;
+    margin-top: 2px;
+  }
+  .prompt-box .prompt-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .prompt-box .prompt-label span {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--prompt-accent);
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(251,191,36,0.16);
+    border: 1px solid rgba(251,191,36,0.45);
+    color: var(--prompt-accent);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: rgba(251,191,36,0.28); }
+  .copy-btn.copied { background: var(--prompt-accent); color: #241a08; border-color: var(--prompt-accent); }
+  .prompt-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .big { font-size: 2.4rem; margin-bottom: 10px; }
+
+  mark {
+    background: var(--accent-light);
+    color: var(--text);
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+
+  .footer-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 40px;
+    line-height: 1.6;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="brand">
+      <div class="logo">🎭</div>
+      <div>
+        <h1>Kling — Casos de Uso y Prompts</h1>
+        <div class="sub">Solo fuentes de Kling (animación y motion control) del cuaderno "Duelo de IA"</div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro">🌗 <span id="themeLabel">Modo automático</span></button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num">6</div><div class="lbl">Capacidades de Kling</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Ejemplos de uso</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Prompts listos para copiar</div></div>
+    <div class="stat-card"><div class="num">1</div><div class="lbl">Fuente original cubierta</div></div>
+  </div>
+
+  <div class="chip-row" id="chipRow"></div>
+
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="Buscar capacidad, palabra clave o prompt...">
+  </div>
+  <div class="search-meta" id="searchMeta"></div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <div class="footer-note">Generado a partir de la fuente sobre Kling del cuaderno de NotebookLM "Duelo de IA: GPT-5.6 Sol contra Fable 5".<br>Kling es <strong>un modelo de vídeo/animación</strong> (usado en combinación con ChatGPT y la plataforma magnifit.com), no una suite de apps propia. Se organiza en <strong>6 capacidades</strong>; "Motion Control (transferir movimientos)", "Creación de avatar con ChatGPT", "Animación de fotogramas estáticos" y "Sincronización labial" incluyen 2 ejemplos cada una para llegar a los 10 pedidos.<br>Los prompts se usan en ChatGPT (para el paso de estilización) o directamente en magnifit.com (para el paso de animación). Sustituye lo que esté entre corchetes por tus datos.</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const TOOLS = {
+    motion: { name: 'Motion Control (transferir movimientos)', ico: '🕺' },
+    avatar: { name: 'Creación de avatar con ChatGPT', ico: '🎨' },
+    frames: { name: 'Animación de fotogramas estáticos', ico: '🖼️' },
+    lipsync: { name: 'Sincronización labial (lip-sync)', ico: '👄' },
+    magnifit: { name: 'Uso vía magnifit.com', ico: '🔗' },
+    ahorro: { name: 'Ahorro de actores/animadores', ico: '💰' }
+  };
+
+  const ITEMS = [
+    {
+      tool: 'motion',
+      t: 'Avatar docente que repite tus gestos en un vídeo',
+      q: 'Kling 3.0 Motion Control transfiere los movimientos de cabeza y los gestos labiales de un vídeo de referencia a un avatar generado.',
+      p: 'Crear contenido animado que imita tus movimientos reales sin necesidad de aparecer tú directamente en cámara.',
+      e: 'Te grabas explicando algo y el avatar reproduce exactamente tus gestos y el movimiento de los labios.',
+      prompt: 'En Kling 3.0 Motion Control: sube este avatar (imagen generada) en la primera casilla y este vídeo mío explicando el tema en la segunda. Genera la animación sincronizada para que el avatar repita exactamente mis movimientos de cabeza y gestos labiales mientras explico las fracciones.'
+    },
+    {
+      tool: 'motion',
+      t: 'Recrear un personaje histórico hablando',
+      q: 'La transferencia de movimiento también permite animar personajes ilustrados a partir de un vídeo tuyo actuando.',
+      p: 'Crear recreaciones históricas o presentaciones de personajes sin necesidad de actores.',
+      e: 'Animar la ilustración de un personaje histórico para que "hable" imitando tu interpretación grabada.',
+      prompt: 'Sube esta ilustración de Cristóbal Colón (generada previamente) como avatar y este vídeo mío interpretándolo. Genera la animación de Motion Control para que el personaje histórico mueva labios y cabeza exactamente como en mi interpretación, para usarlo en una recreación de aula de Historia.'
+    },
+    {
+      tool: 'avatar',
+      t: 'Convertir una foto en avatar de dibujos animados',
+      q: 'Antes de animar con Kling, se transforma una foto real en un personaje ilustrado usando ChatGPT.',
+      p: 'Crear un personaje visualmente atractivo y adecuado para el público infantil antes de animarlo.',
+      e: 'Transformar un selfie en un personaje de dibujos animados listo para animarse después.',
+      prompt: 'Transforma esta foto mía (selfie frontal) en un personaje de dibujos animados 2D, estilo colorido y amigable para niños de Primaria, manteniendo mis rasgos reconocibles para poder animarlo después con Kling.'
+    },
+    {
+      tool: 'avatar',
+      t: 'Crear un personaje temático para una unidad didáctica',
+      q: 'La estilización con ChatGPT permite crear personajes temáticos (científico, explorador...) a partir de una foto base.',
+      p: 'Personalizar el avatar según el tema concreto de la unidad que se va a explicar.',
+      e: 'Convertir una foto en un personaje disfrazado de astronauta para una unidad sobre el espacio.',
+      prompt: 'Transforma esta foto mía en un personaje ilustrado disfrazado de astronauta, estilo cartoon, para usarlo como avatar en un vídeo sobre el sistema solar que voy a animar después con Kling.'
+    },
+    {
+      tool: 'frames',
+      t: 'Dar vida a una infografía estática',
+      q: 'Kling 2.5 puede añadir un movimiento sutil de cámara o de elementos a una imagen fija, sin necesitar un vídeo de referencia.',
+      p: 'Convertir infografías o ilustraciones estáticas en clips cortos con más dinamismo visual.',
+      e: 'Animar sutilmente una infografía del sistema solar para un vídeo educativo.',
+      prompt: 'Anima con un movimiento sutil de cámara esta infografía estática del sistema solar, dando la sensación de zoom lento hacia el sol y ligero movimiento de las órbitas, para usarla como fotograma animado en un vídeo educativo.'
+    },
+    {
+      tool: 'frames',
+      t: 'Animar una ilustración de un cuento de aula',
+      q: 'La misma técnica de animación de fotogramas se puede aplicar a ilustraciones de cuentos o materiales narrativos.',
+      p: 'Dar más vida a las ilustraciones de un cuento sin tener que crear una animación completa desde cero.',
+      e: 'Animar ligeramente una escena ilustrada de un cuento de clase para un vídeo narrado.',
+      prompt: 'Anima con un movimiento sutil esta ilustración de la escena del bosque de nuestro cuento de clase, con un ligero balanceo de las hojas y movimiento de cámara lento, para acompañar la narración en el vídeo del cuento.'
+    },
+    {
+      tool: 'lipsync',
+      t: 'Doblar un vídeo educativo a otro idioma manteniendo el gesto',
+      q: 'La sincronización labial de Kling ajusta el movimiento de la boca al audio proporcionado, incluso en idiomas distintos.',
+      p: 'Adaptar contenido audiovisual a otro idioma sin que se note un desajuste labial evidente.',
+      e: 'Sincronizar los labios de un avatar con un audio doblado al inglés para el área bilingüe.',
+      prompt: 'Con este avatar ya animado y este nuevo audio en inglés del mismo texto: ajusta la sincronización labial para que el movimiento de la boca coincida con el audio en inglés, manteniendo el resto de gestos de la animación original.'
+    },
+    {
+      tool: 'lipsync',
+      t: 'Corregir la sincronización de un vídeo con audio de mala calidad',
+      q: 'También se puede resincronizar los labios de una grabación cuando el audio original no encaja bien o se ha remasterizado.',
+      p: 'Mejorar la calidad de vídeos educativos ya grabados sin tener que regrabarlos desde cero.',
+      e: 'Resincronizar un vídeo antiguo del centro con una versión remasterizada del audio.',
+      prompt: 'Tengo este vídeo antiguo de una explicación de clase con audio de mala calidad, y esta versión remasterizada del mismo audio. Resincroniza los labios del vídeo con el nuevo audio para mejorar la calidad final.'
+    },
+    {
+      tool: 'magnifit',
+      t: 'Primeros pasos en magnifit.com',
+      q: 'El modelo Kling 3.0 Motion Control se usa a través de la plataforma magnifit.com, sin necesidad de instalar nada.',
+      p: 'Acceder al modelo sin conocimientos técnicos avanzados ni software adicional.',
+      e: 'Guiar a un compañero docente sin experiencia previa en cómo empezar a usar la plataforma.',
+      prompt: 'Explícame paso a paso, como si se lo explicara a un compañero docente sin experiencia técnica, cómo entrar en magnifit.com, elegir la opción "crear vídeo" con el modelo Kling 3.0 Motion Control, y subir un avatar y un vídeo de referencia para generar la primera animación.'
+    },
+    {
+      tool: 'ahorro',
+      t: 'Vídeo animado de proyecto sin presupuesto de animación',
+      q: 'Esta técnica elimina la necesidad de contratar actores o animadores profesionales para crear contenido animado realista.',
+      p: 'Producir vídeos educativos animados de calidad con los recursos limitados de un centro.',
+      e: 'Crear un vídeo de presentación de un proyecto de centro sin presupuesto para animación profesional.',
+      prompt: 'Necesito crear un vídeo de presentación animado para el proyecto de centro "Aula del Futuro", pero no tenemos presupuesto para contratar animadores. Ayúdame a planificar el proceso completo con Kling y ChatGPT: qué foto necesito, qué prompt de estilización pedir, y qué vídeo de referencia grabar para conseguir el mejor resultado posible sin coste.'
+    }
+  ];
+
+  const grid = document.getElementById('cardGrid');
+  const searchInput = document.getElementById('searchInput');
+  const searchMeta = document.getElementById('searchMeta');
+  const chipRow = document.getElementById('chipRow');
+  const State = { activeTool: 'all', query: '' };
+
+  function highlight(str, q) {
+    if (!q) return str;
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + esc + ')', 'ig');
+    return str.replace(re, '<mark>$1</mark>');
+  }
+
+  function renderChips() {
+    const counts = { all: ITEMS.length };
+    Object.keys(TOOLS).forEach(k => { counts[k] = ITEMS.filter(i => i.tool === k).length; });
+
+    const chips = [{ key: 'all', label: '🎭 Todas', count: counts.all }]
+      .concat(Object.keys(TOOLS).map(k => ({ key: k, label: `${TOOLS[k].ico} ${TOOLS[k].name}`, count: counts[k] })));
+
+    chipRow.innerHTML = chips.map(c => `
+      <button class="chip ${State.activeTool === c.key ? 'active' : ''}" data-key="${c.key}">${c.label} (${c.count})</button>
+    `).join('');
+
+    chipRow.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        State.activeTool = btn.dataset.key;
+        renderChips();
+        render();
+      });
+    });
+  }
+
+  function cardTemplate(item, idx, q) {
+    const tool = TOOLS[item.tool];
+    return `
+      <div class="tool-card" data-idx="${idx}">
+        <div class="card-head">
+          <div class="card-num">${idx + 1}</div>
+          <div class="card-ico">${tool.ico}</div>
+          <div class="card-title">${highlight(item.t, q)}</div>
+        </div>
+        <div class="tool-badge">${tool.ico} ${tool.name}</div>
+        <div class="card-body">
+          <div>
+            <div class="field-label">🔍 Qué es</div>
+            <div class="field-text">${highlight(item.q, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">⚙️ Para qué sirve</div>
+            <div class="field-text">${highlight(item.p, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">💡 Ejemplo de uso</div>
+            <div class="example-box">${highlight(item.e, q)}</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-label">
+              <span>✨ Prompt listo para copiar</span>
+              <button class="copy-btn" data-idx="${idx}" aria-label="Copiar prompt">📋 Copiar</button>
+            </div>
+            <div class="prompt-text">${highlight(item.prompt, q)}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function attachCopyEvents() {
+    grid.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        const text = ITEMS[idx].prompt;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerHTML;
+          btn.innerHTML = '✅ Copiado';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('copied');
+          }, 1600);
+        }).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btn.innerHTML = '✅ Copiado';
+          setTimeout(() => { btn.innerHTML = '📋 Copiar'; }, 1600);
+        });
+      });
+    });
+  }
+
+  function render() {
+    const q = State.query.trim();
+    const filtered = [];
+    ITEMS.forEach((item, idx) => {
+      if (State.activeTool !== 'all' && item.tool !== State.activeTool) return;
+      const haystack = (item.t + ' ' + item.q + ' ' + item.p + ' ' + item.e + ' ' + item.prompt + ' ' + TOOLS[item.tool].name).toLowerCase();
+      if (!q || haystack.includes(q.toLowerCase())) filtered.push({ item, idx });
+    });
+
+    searchMeta.textContent = q ? `${filtered.length} resultado(s) para "${State.query}"` : `Mostrando ${filtered.length} de ${ITEMS.length} ejemplos`;
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="big">🕳️</div>No se encontró ningún ejemplo que coincida con tu búsqueda.</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(f => cardTemplate(f.item, f.idx, q)).join('');
+    attachCopyEvents();
+  }
+
+  let searchTimer = null;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    const val = e.target.value;
+    searchTimer = setTimeout(() => { State.query = val; render(); }, 180);
+  });
+
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  const AppTheme = { current: localStorage.getItem('kling-dash-theme') || 'auto' };
+  function applyTheme() {
+    if (AppTheme.current === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+      themeLabel.textContent = 'Modo automático';
+    } else {
+      document.documentElement.setAttribute('data-theme', AppTheme.current);
+      themeLabel.textContent = AppTheme.current === 'dark' ? 'Modo oscuro' : 'Modo claro';
+    }
+  }
+  themeToggle.addEventListener('click', () => {
+    AppTheme.current = AppTheme.current === 'auto' ? 'dark' : (AppTheme.current === 'dark' ? 'light' : 'auto');
+    localStorage.setItem('kling-dash-theme', AppTheme.current);
+    applyTheme();
+  });
+  applyTheme();
+
+  // ---------- Init ----------
+  renderChips();
+  render();
+});
+</script>
+</body>
+</html>
