@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kimi K3 — Casos de Uso y Prompts Listos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4fbfc;
+    --surface: #ffffff;
+    --surface-alt: #e3f6f9;
+    --accent: #0891b2;
+    --accent-light: #cff0f6;
+    --accent-dark: #066a86;
+    --text: #142226;
+    --text-muted: #5c7680;
+    --border: #d3ecf1;
+    --shadow: 0 2px 12px rgba(8,145,178,0.10);
+    --prompt-bg: #071d24;
+    --prompt-text: #d7f5fb;
+    --prompt-accent: #5fd8ee;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a1a1e;
+    --surface: #10262b;
+    --surface-alt: #143036;
+    --accent: #4fd4ee;
+    --accent-light: #163a41;
+    --accent-dark: #8ae6f6;
+    --text: #e4f6f9;
+    --text-muted: #85acb5;
+    --border: #1e3d44;
+    --shadow: 0 2px 16px rgba(0,0,0,0.4);
+    --prompt-bg: #040f13;
+    --prompt-text: #c9f1f9;
+    --prompt-accent: #5fd8ee;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0a1a1e;
+      --surface: #10262b;
+      --surface-alt: #143036;
+      --accent: #4fd4ee;
+      --accent-light: #163a41;
+      --accent-dark: #8ae6f6;
+      --text: #e4f6f9;
+      --text-muted: #85acb5;
+      --border: #1e3d44;
+      --shadow: 0 2px 16px rgba(0,0,0,0.4);
+      --prompt-bg: #040f13;
+      --prompt-text: #c9f1f9;
+      --prompt-accent: #5fd8ee;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .card-title, .brand { font-family: 'Outfit', sans-serif; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 24px 70px;
+  }
+
+  /* ---------- Header ---------- */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand .logo {
+    font-size: 2.2rem;
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-light);
+    border-radius: 16px;
+  }
+  .brand h1 { margin: 0; font-size: 1.6rem; font-weight: 800; color: var(--accent-dark); }
+  .brand .sub { color: var(--text-muted); font-size: 0.9rem; margin-top: 2px; }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .num { font-size: 1.7rem; font-weight: 800; color: var(--accent); }
+  .stat-card .lbl { color: var(--text-muted); font-size: 0.8rem; margin-top: 2px; }
+
+  /* ---------- Tool filter chips ---------- */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.active { background: var(--accent); color: #062329; border-color: var(--accent); }
+
+  .search-row {
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .search-row input {
+    width: 100%;
+    padding: 13px 18px 13px 42px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-row input:focus { border-color: var(--accent); }
+  .search-row::before {
+    content: '🔎';
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .search-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0 0 20px 4px;
+  }
+
+  /* ---------- Cards ---------- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 20px 6px;
+  }
+  .card-num {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #062329;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-ico { font-size: 1.4rem; }
+  .card-title { font-size: 1.02rem; font-weight: 700; line-height: 1.3; margin-top: 1px; }
+
+  .tool-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin: 10px 20px 0;
+    width: fit-content;
+  }
+
+  .card-body { padding: 12px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+  .field-text { font-size: 0.87rem; line-height: 1.55; }
+  .field-text strong { color: var(--text); }
+
+  .example-box {
+    background: var(--surface-alt);
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--accent);
+  }
+
+  .prompt-box {
+    background: var(--prompt-bg);
+    color: var(--prompt-text);
+    border-radius: 14px;
+    padding: 14px 15px 12px;
+    position: relative;
+    margin-top: 2px;
+  }
+  .prompt-box .prompt-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .prompt-box .prompt-label span {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--prompt-accent);
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(95,216,238,0.16);
+    border: 1px solid rgba(95,216,238,0.45);
+    color: var(--prompt-accent);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: rgba(95,216,238,0.28); }
+  .copy-btn.copied { background: var(--prompt-accent); color: #052027; border-color: var(--prompt-accent); }
+  .prompt-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .big { font-size: 2.4rem; margin-bottom: 10px; }
+
+  mark {
+    background: var(--accent-light);
+    color: var(--text);
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+
+  .footer-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 40px;
+    line-height: 1.6;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="brand">
+      <div class="logo">🀄</div>
+      <div>
+        <h1>Kimi K3 — Casos de Uso y Prompts</h1>
+        <div class="sub">Solo fuentes de Kimi K3 (Moonshot AI) del cuaderno "Duelo de IA"</div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro">🌗 <span id="themeLabel">Modo automático</span></button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num">8</div><div class="lbl">Capacidades de Kimi K3</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Ejemplos de uso</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Prompts listos para copiar</div></div>
+    <div class="stat-card"><div class="num">4</div><div class="lbl">Fuentes originales cubiertas</div></div>
+  </div>
+
+  <div class="chip-row" id="chipRow"></div>
+
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="Buscar capacidad, palabra clave o prompt...">
+  </div>
+  <div class="search-meta" id="searchMeta"></div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <div class="footer-note">Generado a partir de las fuentes sobre Kimi K3 del cuaderno de NotebookLM "Duelo de IA: GPT-5.6 Sol contra Fable 5".<br>A diferencia de ChatGPT o Claude, Kimi K3 es <strong>un único modelo</strong> (no varias apps/funciones separadas). Por eso aquí se organiza en <strong>8 capacidades distintas</strong> de ese modelo; "Programación agéntica" y "Contexto masivo (1M tokens)" incluyen 2 ejemplos cada una para llegar a los 10 pedidos.<br>Los prompts son plantillas de partida: sustituye lo que esté entre corchetes por tus datos.</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const TOOLS = {
+    chat: { name: 'Chat casual gratuito', ico: '💬' },
+    agentic: { name: 'Programación agéntica', ico: '🤖' },
+    context: { name: 'Contexto masivo (1M tokens)', ico: '📚' },
+    audit: { name: 'Auditoría de código', ico: '🔍' },
+    vision: { name: 'Visión nativa', ico: '👁️' },
+    frontend: { name: 'Frontend interactivo', ico: '🖥️' },
+    opendesign: { name: 'Open Design (vía API)', ico: '🎨' },
+    compare: { name: 'Coste vs. rendimiento', ico: '⚖️' }
+  };
+
+  const ITEMS = [
+    {
+      tool: 'chat',
+      t: 'Resolver dudas de aula gratis',
+      q: 'La versión web de Kimi K3 permite chat casual gratuito, sin necesidad de API ni suscripción.',
+      p: 'Resolver dudas puntuales de contenido o redactar textos cortos sin coste alguno.',
+      e: 'Preguntas cómo explicar un concepto matemático de forma sencilla a niños de 10 años.',
+      prompt: 'Explícame el concepto de "fracciones equivalentes" como si se lo estuviera explicando a un niño de 10 años, usando un ejemplo con una pizza y describiendo los dibujos paso a paso en palabras.'
+    },
+    {
+      tool: 'agentic',
+      t: 'App completa de biblioteca escolar',
+      q: 'Vía API, Kimi K3 actúa como agente de programación capaz de completar proyectos de principio a fin gracias a su eficiente arquitectura MoE.',
+      p: 'Desarrollar herramientas internas del centro sin contratar desarrollo externo.',
+      e: 'Se le pide programar una app de préstamo de libros con backend y frontend simples, completos y funcionales.',
+      prompt: 'Actúa como agente de programación. Desarrolla una aplicación web completa (frontend y backend simple) para gestionar el préstamo de libros de la biblioteca del colegio: alta de libros, registro de préstamos y un panel donde se vea qué libros están fuera de plazo. Usa HTML, CSS y JavaScript sin librerías externas.'
+    },
+    {
+      tool: 'agentic',
+      t: 'Videojuego educativo funcional en pocos intentos',
+      q: 'Su rendimiento agéntico es competitivo con GPT-5.6 Sol y Fable 5, generando código funcional en muy pocas iteraciones.',
+      p: 'Crear un proyecto de programación motivador para un club de tecnología o robótica.',
+      e: 'Un pequeño videojuego tipo laberinto con recogida de llaves, programado y funcionando en apenas 2-3 intentos.',
+      prompt: 'Programa en el navegador un videojuego 3D sencillo tipo laberinto donde el jugador debe recoger 5 llaves numeradas en orden antes de llegar a la salida, con controles de teclado y física básica de colisiones. Hazlo funcional en un único archivo HTML.'
+    },
+    {
+      tool: 'context',
+      t: 'Análisis del currículo completo de un curso',
+      q: 'La ventana de contexto de 1 millón de tokens permite procesar documentos extremadamente largos de una sola vez, sin fragmentarlos.',
+      p: 'Analizar de golpe todo el currículo oficial de una asignatura para generar documentación coherente.',
+      e: 'Subir el currículo completo de una etapa y pedir una programación anual dividida por trimestres.',
+      prompt: 'Aquí tienes el currículo oficial completo de Ciencias Naturales de Primaria (documento extenso adjunto). Analízalo entero de una vez y genera una programación didáctica anual dividida en trimestres, con objetivos, contenidos y criterios de evaluación para cada unidad.'
+    },
+    {
+      tool: 'context',
+      t: 'Detectar incoherencias entre varios documentos de centro',
+      q: 'El contexto masivo permite comparar y cruzar información entre múltiples documentos extensos simultáneamente.',
+      p: 'Revisar la coherencia entre distintos documentos oficiales del centro sin tener que leerlos todos de forma cruzada manualmente.',
+      e: 'Se suben tres documentos largos y se pide señalar cualquier contradicción entre ellos.',
+      prompt: 'Aquí tienes tres documentos largos: el Proyecto Educativo de Centro, la programación general anual y el reglamento de régimen interno. Analízalos juntos y señálame cualquier contradicción o incoherencia entre ellos, citando la sección exacta de cada documento.'
+    },
+    {
+      tool: 'audit',
+      t: 'Auditoría de un repositorio educativo',
+      q: 'Su arquitectura MoE (896 expertos, solo 16 activos por token) le permite auditar bases de código muy grandes de forma eficiente.',
+      p: 'Revisar proyectos de programación educativa completos en busca de errores, código duplicado o malas prácticas.',
+      e: 'Auditar el repositorio de una app de gamificación de aula y priorizar las correcciones necesarias.',
+      prompt: 'Audita todo este repositorio de código de nuestra app de gamificación del aula. Señala errores, código duplicado, vulnerabilidades de seguridad básicas y sugiere mejoras concretas, ordenadas por prioridad.'
+    },
+    {
+      tool: 'vision',
+      t: 'Extraer texto de una foto de mural de aula',
+      q: 'Kimi K3 procesa imágenes de forma nativa, sin necesitar herramientas externas de OCR.',
+      p: 'Analizar fotografías de material escolar directamente, sin pasos intermedios de digitalización.',
+      e: 'Una foto de un mural con vocabulario escrito a mano se convierte en una lista de palabras organizada y corregida.',
+      prompt: 'Aquí tienes la foto de un mural de aula con el vocabulario de la unidad escrito a mano por los alumnos. Extrae todas las palabras que reconozcas, corrígelas si hay faltas de ortografía y organízalas en una lista alfabética con su traducción al inglés.'
+    },
+    {
+      tool: 'frontend',
+      t: 'Panel interactivo de horario semanal',
+      q: 'Kimi K3 puede generar interfaces frontend interactivas y visualmente atractivas a partir de una descripción simple.',
+      p: 'Crear pequeñas herramientas visuales para el aula sin necesidad de conocimientos de programación.',
+      e: 'Una página donde el alumnado hace clic en cada día y ve las asignaturas correspondientes.',
+      prompt: 'Crea una página web interactiva de una sola pantalla donde el alumnado pueda hacer clic en cada día de la semana y ver las asignaturas de ese día, con un diseño colorido y adaptado a niños de Primaria, usando solo HTML, CSS y JavaScript.'
+    },
+    {
+      tool: 'opendesign',
+      t: 'Clonar el diseño de una web con Open Design',
+      q: 'Open Design, la alternativa open-source a Claude Design, puede conectarse vía API a Kimi K3 como motor de generación.',
+      p: 'Diseñar la identidad visual de un proyecto usando Kimi K3 sin depender de las apps oficiales de pago.',
+      e: 'Clonar el diseño de una web de referencia y adaptarlo a los colores corporativos del centro.',
+      prompt: 'Conectado a Kimi K3 a través de Open Design: clona el diseño de esta web de referencia [pega aquí la URL] y adáptalo a los colores corporativos de mi centro (azul y blanco), manteniendo la misma estructura de secciones.'
+    },
+    {
+      tool: 'compare',
+      t: 'Decidir si conviene usar Kimi K3 o un modelo de pago',
+      q: 'Kimi K3 rinde a la par de GPT-5.6 Sol y Fable 5, pero su coste práctico depende del consumo real de tokens de cada tarea.',
+      p: 'Tomar una decisión informada sobre qué modelo usar según el presupuesto disponible antes de empezar un proyecto.',
+      e: 'Antes de programar una app, pides una comparación honesta de coste estimado entre Kimi K3 y GPT-5.6 Sol para esa tarea concreta.',
+      prompt: 'Compara, para la tarea de programar una app de gestión de horarios que te voy a describir, si me conviene más usar Kimi K3 vía API o un modelo como GPT-5.6 Sol, teniendo en cuenta el consumo estimado de tokens y el coste aproximado. Sé honesto sobre tus propias limitaciones frente a otros modelos.'
+    }
+  ];
+
+  const grid = document.getElementById('cardGrid');
+  const searchInput = document.getElementById('searchInput');
+  const searchMeta = document.getElementById('searchMeta');
+  const chipRow = document.getElementById('chipRow');
+  const State = { activeTool: 'all', query: '' };
+
+  function highlight(str, q) {
+    if (!q) return str;
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + esc + ')', 'ig');
+    return str.replace(re, '<mark>$1</mark>');
+  }
+
+  function renderChips() {
+    const counts = { all: ITEMS.length };
+    Object.keys(TOOLS).forEach(k => { counts[k] = ITEMS.filter(i => i.tool === k).length; });
+
+    const chips = [{ key: 'all', label: '🀄 Todas', count: counts.all }]
+      .concat(Object.keys(TOOLS).map(k => ({ key: k, label: `${TOOLS[k].ico} ${TOOLS[k].name}`, count: counts[k] })));
+
+    chipRow.innerHTML = chips.map(c => `
+      <button class="chip ${State.activeTool === c.key ? 'active' : ''}" data-key="${c.key}">${c.label} (${c.count})</button>
+    `).join('');
+
+    chipRow.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        State.activeTool = btn.dataset.key;
+        renderChips();
+        render();
+      });
+    });
+  }
+
+  function cardTemplate(item, idx, q) {
+    const tool = TOOLS[item.tool];
+    return `
+      <div class="tool-card" data-idx="${idx}">
+        <div class="card-head">
+          <div class="card-num">${idx + 1}</div>
+          <div class="card-ico">${tool.ico}</div>
+          <div class="card-title">${highlight(item.t, q)}</div>
+        </div>
+        <div class="tool-badge">${tool.ico} ${tool.name}</div>
+        <div class="card-body">
+          <div>
+            <div class="field-label">🔍 Qué es</div>
+            <div class="field-text">${highlight(item.q, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">⚙️ Para qué sirve</div>
+            <div class="field-text">${highlight(item.p, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">💡 Ejemplo de uso</div>
+            <div class="example-box">${highlight(item.e, q)}</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-label">
+              <span>✨ Prompt listo para copiar</span>
+              <button class="copy-btn" data-idx="${idx}" aria-label="Copiar prompt">📋 Copiar</button>
+            </div>
+            <div class="prompt-text">${highlight(item.prompt, q)}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function attachCopyEvents() {
+    grid.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        const text = ITEMS[idx].prompt;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerHTML;
+          btn.innerHTML = '✅ Copiado';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('copied');
+          }, 1600);
+        }).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btn.innerHTML = '✅ Copiado';
+          setTimeout(() => { btn.innerHTML = '📋 Copiar'; }, 1600);
+        });
+      });
+    });
+  }
+
+  function render() {
+    const q = State.query.trim();
+    const filtered = [];
+    ITEMS.forEach((item, idx) => {
+      if (State.activeTool !== 'all' && item.tool !== State.activeTool) return;
+      const haystack = (item.t + ' ' + item.q + ' ' + item.p + ' ' + item.e + ' ' + item.prompt + ' ' + TOOLS[item.tool].name).toLowerCase();
+      if (!q || haystack.includes(q.toLowerCase())) filtered.push({ item, idx });
+    });
+
+    searchMeta.textContent = q ? `${filtered.length} resultado(s) para "${State.query}"` : `Mostrando ${filtered.length} de ${ITEMS.length} ejemplos`;
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="big">🕳️</div>No se encontró ningún ejemplo que coincida con tu búsqueda.</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(f => cardTemplate(f.item, f.idx, q)).join('');
+    attachCopyEvents();
+  }
+
+  let searchTimer = null;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    const val = e.target.value;
+    searchTimer = setTimeout(() => { State.query = val; render(); }, 180);
+  });
+
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  const AppTheme = { current: localStorage.getItem('kimik3-dash-theme') || 'auto' };
+  function applyTheme() {
+    if (AppTheme.current === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+      themeLabel.textContent = 'Modo automático';
+    } else {
+      document.documentElement.setAttribute('data-theme', AppTheme.current);
+      themeLabel.textContent = AppTheme.current === 'dark' ? 'Modo oscuro' : 'Modo claro';
+    }
+  }
+  themeToggle.addEventListener('click', () => {
+    AppTheme.current = AppTheme.current === 'auto' ? 'dark' : (AppTheme.current === 'dark' ? 'light' : 'auto');
+    localStorage.setItem('kimik3-dash-theme', AppTheme.current);
+    applyTheme();
+  });
+  applyTheme();
+
+  // ---------- Init ----------
+  renderChips();
+  render();
+});
+</script>
+</body>
+</html>
