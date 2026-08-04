@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepSeek — Casos de Uso y Prompts Listos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f6fe;
+    --surface: #ffffff;
+    --surface-alt: #eaebfc;
+    --accent: #4f46e5;
+    --accent-light: #e0e1fb;
+    --accent-dark: #3730a3;
+    --text: #1c1e33;
+    --text-muted: #67699a;
+    --border: #dcdefb;
+    --shadow: 0 2px 12px rgba(79,70,229,0.10);
+    --prompt-bg: #12102b;
+    --prompt-text: #e2e1fb;
+    --prompt-accent: #a5a6f6;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e0d1f;
+    --surface: #171531;
+    --surface-alt: #1d1a3c;
+    --accent: #918cf9;
+    --accent-light: #2c2860;
+    --accent-dark: #c1bdfb;
+    --text: #e9e8fb;
+    --text-muted: #9c9bc7;
+    --border: #2b2755;
+    --shadow: 0 2px 16px rgba(0,0,0,0.4);
+    --prompt-bg: #08071a;
+    --prompt-text: #d6d4fa;
+    --prompt-accent: #a5a6f6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e0d1f;
+      --surface: #171531;
+      --surface-alt: #1d1a3c;
+      --accent: #918cf9;
+      --accent-light: #2c2860;
+      --accent-dark: #c1bdfb;
+      --text: #e9e8fb;
+      --text-muted: #9c9bc7;
+      --border: #2b2755;
+      --shadow: 0 2px 16px rgba(0,0,0,0.4);
+      --prompt-bg: #08071a;
+      --prompt-text: #d6d4fa;
+      --prompt-accent: #a5a6f6;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .card-title, .brand { font-family: 'Outfit', sans-serif; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 24px 70px;
+  }
+
+  /* ---------- Header ---------- */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand .logo {
+    font-size: 2.2rem;
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-light);
+    border-radius: 16px;
+  }
+  .brand h1 { margin: 0; font-size: 1.6rem; font-weight: 800; color: var(--accent-dark); }
+  .brand .sub { color: var(--text-muted); font-size: 0.9rem; margin-top: 2px; }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .num { font-size: 1.7rem; font-weight: 800; color: var(--accent); }
+  .stat-card .lbl { color: var(--text-muted); font-size: 0.8rem; margin-top: 2px; }
+
+  /* ---------- Tool filter chips ---------- */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .search-row {
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .search-row input {
+    width: 100%;
+    padding: 13px 18px 13px 42px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-row input:focus { border-color: var(--accent); }
+  .search-row::before {
+    content: '🔎';
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .search-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0 0 20px 4px;
+  }
+
+  /* ---------- Cards ---------- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 20px 6px;
+  }
+  .card-num {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-ico { font-size: 1.4rem; }
+  .card-title { font-size: 1.02rem; font-weight: 700; line-height: 1.3; margin-top: 1px; }
+
+  .tool-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin: 10px 20px 0;
+    width: fit-content;
+  }
+
+  .card-body { padding: 12px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+  .field-text { font-size: 0.87rem; line-height: 1.55; }
+  .field-text strong { color: var(--text); }
+
+  .example-box {
+    background: var(--surface-alt);
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--accent);
+  }
+
+  .prompt-box {
+    background: var(--prompt-bg);
+    color: var(--prompt-text);
+    border-radius: 14px;
+    padding: 14px 15px 12px;
+    position: relative;
+    margin-top: 2px;
+  }
+  .prompt-box .prompt-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .prompt-box .prompt-label span {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--prompt-accent);
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(165,166,246,0.16);
+    border: 1px solid rgba(165,166,246,0.45);
+    color: var(--prompt-accent);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: rgba(165,166,246,0.28); }
+  .copy-btn.copied { background: var(--prompt-accent); color: #17133a; border-color: var(--prompt-accent); }
+  .prompt-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .big { font-size: 2.4rem; margin-bottom: 10px; }
+
+  mark {
+    background: var(--accent-light);
+    color: var(--text);
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+
+  .footer-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 40px;
+    line-height: 1.6;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="brand">
+      <div class="logo">🐋</div>
+      <div>
+        <h1>DeepSeek — Casos de Uso y Prompts</h1>
+        <div class="sub">Solo fuentes de DeepSeek del cuaderno "Duelo de IA"</div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro">🌗 <span id="themeLabel">Modo automático</span></button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num">7</div><div class="lbl">Capacidades de DeepSeek</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Ejemplos de uso</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Prompts listos para copiar</div></div>
+    <div class="stat-card"><div class="num">2</div><div class="lbl">Fuentes originales cubiertas</div></div>
+  </div>
+
+  <div class="chip-row" id="chipRow"></div>
+
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="Buscar capacidad, palabra clave o prompt...">
+  </div>
+  <div class="search-meta" id="searchMeta"></div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <div class="footer-note">Generado a partir de las fuentes sobre DeepSeek del cuaderno de NotebookLM "Duelo de IA: GPT-5.6 Sol contra Fable 5".<br>DeepSeek es <strong>un laboratorio con dos modelos</strong> (V3 y R1), no una suite de apps. Se organiza en <strong>7 capacidades distintas</strong>; "Razonamiento y matemáticas (R1)", "Programación compleja (Coder)" y "Orquestación agéntica de bajo coste" incluyen 2 ejemplos cada una para llegar a los 10 pedidos.<br>Los prompts se escriben en la interfaz de chat oficial o en el editor/agente conectado a su API. Sustituye lo que esté entre corchetes por tus datos.</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const TOOLS = {
+    reasoning: { name: 'Razonamiento y matemáticas (R1)', ico: '🧮' },
+    coding: { name: 'Programación compleja (Coder)', ico: '👨‍💻' },
+    agentic: { name: 'Orquestación agéntica de bajo coste', ico: '🤖' },
+    access: { name: 'Acceso vía API / NVIDIA', ico: '🔑' },
+    momento: { name: 'El "momento DeepSeek"', ico: '📰' },
+    model: { name: 'Elegir modelo y esfuerzo', ico: '⚖️' },
+    integration: { name: 'Integración en editores locales', ico: '🧩' }
+  };
+
+  const ITEMS = [
+    {
+      tool: 'reasoning',
+      t: 'Resolver un problema avanzado de matemáticas',
+      q: 'El modelo R1 de DeepSeek está altamente especializado en razonamiento lógico y matemático, a la altura de modelos mucho más caros.',
+      p: 'Apoyar la preparación de concursos o problemas de matemáticas de nivel avanzado con explicaciones paso a paso.',
+      e: 'Resolver un problema de combinatoria de nivel de olimpiada y explicarlo también de forma simplificada.',
+      prompt: 'Actúa como el modelo de razonamiento R1. Resuelve este problema de combinatoria de nivel de olimpiada matemática paso a paso, explicando cada decisión lógica que tomas, y al final dame una versión simplificada de la explicación apta para un alumno de 12 años: [pega el problema].'
+    },
+    {
+      tool: 'reasoning',
+      t: 'Detectar el error de razonamiento de un alumno',
+      q: 'R1 puede analizar cadenas de razonamiento complejas para localizar dónde falla exactamente la lógica, no solo el resultado.',
+      p: 'Corregir ejercicios señalando el paso concreto del error, útil para dar feedback formativo real.',
+      e: 'Revisar la resolución escrita de un alumno e indicar en qué paso se equivocó y por qué.',
+      prompt: 'Aquí tienes la resolución escrita por un alumno de un problema de matemáticas de 6º de Primaria: [pega la resolución]. Indícame en qué paso exacto se produce el error de razonamiento, explica por qué es un error y sugiere cómo ayudarle a corregirlo sin darle directamente la respuesta.'
+    },
+    {
+      tool: 'coding',
+      t: 'App de gestión de rutinas de Educación Física',
+      q: 'El modelo Coder de DeepSeek programa sistemas completos sin bibliotecas externas, incluyendo lógica de validación.',
+      p: 'Crear herramientas internas de gestión para el centro sin un coste de desarrollo elevado.',
+      e: 'Un sistema en JS/HTML/CSS puro para asignar ejercicios de gimnasio validando que no se repitan el mismo día.',
+      prompt: 'Programa en JavaScript, HTML y CSS puro (sin bibliotecas externas) un sistema para gestionar las rutinas de Educación Física de mi clase: asignación de máquinas o ejercicios a cada alumno, validación de que no se repita el mismo ejercicio dos días seguidos, y guardado de todo en el almacenamiento local del navegador.'
+    },
+    {
+      tool: 'coding',
+      t: 'Corrector automático de ejercicios de código',
+      q: 'El modelo Coder también evalúa y depura código ajeno de forma eficiente y económica.',
+      p: 'Dar feedback automático a los ejercicios de programación de un club de tecnología.',
+      e: 'Revisar el código de varios alumnos y generar un resumen con los errores más repetidos del grupo.',
+      prompt: 'Revisa estos 5 ejercicios de Python entregados por mis alumnos de 4º de ESO (pegados abajo). Para cada uno, indica si el código funciona correctamente, señala el error si lo hay, y genera al final un resumen con los 3 errores más repetidos en el grupo para poder explicarlos en clase: [pega los códigos].'
+    },
+    {
+      tool: 'agentic',
+      t: 'Orquestar un proyecto de aula con presupuesto mínimo',
+      q: 'DeepSeek actúa como orquestador agéntico eficiente, dividiendo tareas complejas a un coste muy bajo frente a otros modelos.',
+      p: 'Gestionar proyectos de varias fases sin agotar el presupuesto de innovación del centro.',
+      e: 'Planificar y ejecutar por fases la creación de un dosier completo sobre un tema, revisando cada fase antes de continuar.',
+      prompt: 'Actúa como agente orquestador de bajo coste. Divide en fases la creación de un dosier completo sobre "los volcanes" para 5º de Primaria: investigación de contenidos, redacción de las fichas, diseño de las preguntas de evaluación y un resumen final para las familias. Ejecuta cada fase y muéstrame el resultado antes de pasar a la siguiente.'
+    },
+    {
+      tool: 'agentic',
+      t: 'Automatizar una tarea que se repite cada semana',
+      q: 'Gracias a su eficiencia de coste, DeepSeek se presta bien a tareas agénticas recurrentes sin preocuparse tanto por el gasto de tokens.',
+      p: 'Automatizar procesos que se repiten cada semana o evaluación con el mismo formato exacto.',
+      e: 'Generar cada semana el mismo tipo de ficha de repaso, cambiando solo el tema.',
+      prompt: 'Actúa como agente recurrente de bajo coste. Cada vez que te dé un tema nuevo, genera automáticamente: una ficha de 10 preguntas, sus respuestas correctas, y una versión imprimible en texto plano lista para fotocopiar, siguiendo siempre exactamente el mismo formato. Empieza con el tema: [tema de la semana].'
+    },
+    {
+      tool: 'access',
+      t: 'Conectar DeepSeek a través de NVIDIA para más velocidad',
+      q: 'Se puede acceder a DeepSeek mediante su API oficial o mediante intermediarios como la nube de NVIDIA, con inferencia más rápida.',
+      p: 'Elegir la vía de acceso más adecuada según la velocidad, el coste o la disponibilidad que necesites.',
+      e: 'Configurar un agente local conectado a DeepSeek a través de NVIDIA para respuestas más rápidas.',
+      prompt: 'Voy a conectar DeepSeek R1 a mi editor de código a través de la API de NVIDIA para aprovechar su inferencia más rápida. Configurado ya el acceso: genera una función que calcule la nota media ponderada de un alumno a partir de varias evaluaciones con distinto peso porcentual cada una.'
+    },
+    {
+      tool: 'momento',
+      t: 'Explicar el "momento DeepSeek" en clase de Tecnología',
+      q: 'Hace referencia al momento en que un modelo abierto y barato chino demostró igualar el rendimiento de los modelos estadounidenses más caros.',
+      p: 'Usarlo como ejemplo de actualidad para explicar geopolítica de la IA y el valor del software abierto.',
+      e: 'Generar una explicación sencilla del "momento DeepSeek" adaptada a la edad de los alumnos.',
+      prompt: 'Explícame el "momento DeepSeek" de forma sencilla, como si se lo estuviera contando a alumnos de 4º de ESO en la asignatura de Tecnología: qué pasó, por qué sorprendió al mundo, y qué significa que un modelo de IA sea "abierto" frente a uno "cerrado". Usa un ejemplo cotidiano para explicar la diferencia de coste.'
+    },
+    {
+      tool: 'model',
+      t: 'Elegir entre R1 y Coder según la tarea',
+      q: 'DeepSeek ofrece modelos distintos (R1 para razonamiento, Coder para programación) con niveles de razonamiento ajustables.',
+      p: 'Elegir el modelo y el nivel de esfuerzo adecuado antes de lanzar una tarea, para no malgastar tokens.',
+      e: 'Consultar qué modelo conviene más para una tarea concreta antes de empezar a trabajar con ella.',
+      prompt: 'Tengo esta tarea: [describe tu tarea]. Dime si me conviene más usar el modelo R1 (razonamiento) o Coder (programación) de DeepSeek para resolverla, y qué nivel de razonamiento (bajo, medio, alto) recomendarías para no gastar tokens innecesarios.'
+    },
+    {
+      tool: 'integration',
+      t: 'Usar DeepSeek como motor de un editor local',
+      q: 'DeepSeek se puede conectar a agentes y editores locales como Hermes u Open Code mediante su clave de API.',
+      p: 'Integrarlo en el flujo de trabajo habitual de programación como asistente de código.',
+      e: 'Configurar DeepSeek como proveedor en Open Code y pedirle que desarrolle un componente directamente en el editor.',
+      prompt: 'Con DeepSeek configurado como proveedor en Open Code: crea un componente de React que muestre una lista de tareas pendientes con checkbox para marcarlas como completadas, y aplícalo directamente sobre los archivos de mi proyecto actual.'
+    }
+  ];
+
+  const grid = document.getElementById('cardGrid');
+  const searchInput = document.getElementById('searchInput');
+  const searchMeta = document.getElementById('searchMeta');
+  const chipRow = document.getElementById('chipRow');
+  const State = { activeTool: 'all', query: '' };
+
+  function highlight(str, q) {
+    if (!q) return str;
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + esc + ')', 'ig');
+    return str.replace(re, '<mark>$1</mark>');
+  }
+
+  function renderChips() {
+    const counts = { all: ITEMS.length };
+    Object.keys(TOOLS).forEach(k => { counts[k] = ITEMS.filter(i => i.tool === k).length; });
+
+    const chips = [{ key: 'all', label: '🐋 Todas', count: counts.all }]
+      .concat(Object.keys(TOOLS).map(k => ({ key: k, label: `${TOOLS[k].ico} ${TOOLS[k].name}`, count: counts[k] })));
+
+    chipRow.innerHTML = chips.map(c => `
+      <button class="chip ${State.activeTool === c.key ? 'active' : ''}" data-key="${c.key}">${c.label} (${c.count})</button>
+    `).join('');
+
+    chipRow.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        State.activeTool = btn.dataset.key;
+        renderChips();
+        render();
+      });
+    });
+  }
+
+  function cardTemplate(item, idx, q) {
+    const tool = TOOLS[item.tool];
+    return `
+      <div class="tool-card" data-idx="${idx}">
+        <div class="card-head">
+          <div class="card-num">${idx + 1}</div>
+          <div class="card-ico">${tool.ico}</div>
+          <div class="card-title">${highlight(item.t, q)}</div>
+        </div>
+        <div class="tool-badge">${tool.ico} ${tool.name}</div>
+        <div class="card-body">
+          <div>
+            <div class="field-label">🔍 Qué es</div>
+            <div class="field-text">${highlight(item.q, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">⚙️ Para qué sirve</div>
+            <div class="field-text">${highlight(item.p, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">💡 Ejemplo de uso</div>
+            <div class="example-box">${highlight(item.e, q)}</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-label">
+              <span>✨ Prompt listo para copiar</span>
+              <button class="copy-btn" data-idx="${idx}" aria-label="Copiar prompt">📋 Copiar</button>
+            </div>
+            <div class="prompt-text">${highlight(item.prompt, q)}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function attachCopyEvents() {
+    grid.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        const text = ITEMS[idx].prompt;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerHTML;
+          btn.innerHTML = '✅ Copiado';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('copied');
+          }, 1600);
+        }).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btn.innerHTML = '✅ Copiado';
+          setTimeout(() => { btn.innerHTML = '📋 Copiar'; }, 1600);
+        });
+      });
+    });
+  }
+
+  function render() {
+    const q = State.query.trim();
+    const filtered = [];
+    ITEMS.forEach((item, idx) => {
+      if (State.activeTool !== 'all' && item.tool !== State.activeTool) return;
+      const haystack = (item.t + ' ' + item.q + ' ' + item.p + ' ' + item.e + ' ' + item.prompt + ' ' + TOOLS[item.tool].name).toLowerCase();
+      if (!q || haystack.includes(q.toLowerCase())) filtered.push({ item, idx });
+    });
+
+    searchMeta.textContent = q ? `${filtered.length} resultado(s) para "${State.query}"` : `Mostrando ${filtered.length} de ${ITEMS.length} ejemplos`;
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="big">🕳️</div>No se encontró ningún ejemplo que coincida con tu búsqueda.</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(f => cardTemplate(f.item, f.idx, q)).join('');
+    attachCopyEvents();
+  }
+
+  let searchTimer = null;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    const val = e.target.value;
+    searchTimer = setTimeout(() => { State.query = val; render(); }, 180);
+  });
+
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  const AppTheme = { current: localStorage.getItem('deepseek-dash-theme') || 'auto' };
+  function applyTheme() {
+    if (AppTheme.current === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+      themeLabel.textContent = 'Modo automático';
+    } else {
+      document.documentElement.setAttribute('data-theme', AppTheme.current);
+      themeLabel.textContent = AppTheme.current === 'dark' ? 'Modo oscuro' : 'Modo claro';
+    }
+  }
+  themeToggle.addEventListener('click', () => {
+    AppTheme.current = AppTheme.current === 'auto' ? 'dark' : (AppTheme.current === 'dark' ? 'light' : 'auto');
+    localStorage.setItem('deepseek-dash-theme', AppTheme.current);
+    applyTheme();
+  });
+  applyTheme();
+
+  // ---------- Init ----------
+  renderChips();
+  render();
+});
+</script>
+</body>
+</html>
