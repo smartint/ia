@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemma 4 — Casos de Uso y Prompts Listos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7faf0;
+    --surface: #ffffff;
+    --surface-alt: #eaf5d9;
+    --accent: #65a30d;
+    --accent-light: #dcefc0;
+    --accent-dark: #4d7a09;
+    --text: #1e2415;
+    --text-muted: #647459;
+    --border: #dcecc4;
+    --shadow: 0 2px 12px rgba(101,163,13,0.10);
+    --prompt-bg: #131b09;
+    --prompt-text: #e4f3cf;
+    --prompt-accent: #a3e635;
+  }
+  :root[data-theme="dark"] {
+    --bg: #10160a;
+    --surface: #182210;
+    --surface-alt: #1e2b13;
+    --accent: #a3e635;
+    --accent-light: #2b3b18;
+    --accent-dark: #c3f26a;
+    --text: #eef6e2;
+    --text-muted: #9bb586;
+    --border: #2b3b1e;
+    --shadow: 0 2px 16px rgba(0,0,0,0.4);
+    --prompt-bg: #0a0f06;
+    --prompt-text: #dcf0c4;
+    --prompt-accent: #a3e635;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10160a;
+      --surface: #182210;
+      --surface-alt: #1e2b13;
+      --accent: #a3e635;
+      --accent-light: #2b3b18;
+      --accent-dark: #c3f26a;
+      --text: #eef6e2;
+      --text-muted: #9bb586;
+      --border: #2b3b1e;
+      --shadow: 0 2px 16px rgba(0,0,0,0.4);
+      --prompt-bg: #0a0f06;
+      --prompt-text: #dcf0c4;
+      --prompt-accent: #a3e635;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .card-title, .brand { font-family: 'Outfit', sans-serif; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 24px 70px;
+  }
+
+  /* ---------- Header ---------- */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand .logo {
+    font-size: 2.2rem;
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-light);
+    border-radius: 16px;
+  }
+  .brand h1 { margin: 0; font-size: 1.6rem; font-weight: 800; color: var(--accent-dark); }
+  .brand .sub { color: var(--text-muted); font-size: 0.9rem; margin-top: 2px; }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .num { font-size: 1.7rem; font-weight: 800; color: var(--accent); }
+  .stat-card .lbl { color: var(--text-muted); font-size: 0.8rem; margin-top: 2px; }
+
+  /* ---------- Tool filter chips ---------- */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.active { background: var(--accent); color: #182008; border-color: var(--accent); }
+
+  .search-row {
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .search-row input {
+    width: 100%;
+    padding: 13px 18px 13px 42px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-row input:focus { border-color: var(--accent); }
+  .search-row::before {
+    content: '🔎';
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .search-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0 0 20px 4px;
+  }
+
+  /* ---------- Cards ---------- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 20px 6px;
+  }
+  .card-num {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #182008;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-ico { font-size: 1.4rem; }
+  .card-title { font-size: 1.02rem; font-weight: 700; line-height: 1.3; margin-top: 1px; }
+
+  .tool-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin: 10px 20px 0;
+    width: fit-content;
+  }
+
+  .card-body { padding: 12px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+  .field-text { font-size: 0.87rem; line-height: 1.55; }
+  .field-text strong { color: var(--text); }
+
+  .example-box {
+    background: var(--surface-alt);
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--accent);
+  }
+
+  .prompt-box {
+    background: var(--prompt-bg);
+    color: var(--prompt-text);
+    border-radius: 14px;
+    padding: 14px 15px 12px;
+    position: relative;
+    margin-top: 2px;
+  }
+  .prompt-box .prompt-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .prompt-box .prompt-label span {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--prompt-accent);
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(163,230,53,0.16);
+    border: 1px solid rgba(163,230,53,0.45);
+    color: var(--prompt-accent);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: rgba(163,230,53,0.28); }
+  .copy-btn.copied { background: var(--prompt-accent); color: #182008; border-color: var(--prompt-accent); }
+  .prompt-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .big { font-size: 2.4rem; margin-bottom: 10px; }
+
+  mark {
+    background: var(--accent-light);
+    color: var(--text);
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+
+  .footer-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 40px;
+    line-height: 1.6;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="brand">
+      <div class="logo">🤖</div>
+      <div>
+        <h1>Gemma 4 — Casos de Uso y Prompts</h1>
+        <div class="sub">Solo fuentes de Gemma 4 (modelos locales de Google) del cuaderno "Duelo de IA"</div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro">🌗 <span id="themeLabel">Modo automático</span></button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num">7</div><div class="lbl">Capacidades de Gemma 4</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Ejemplos de uso</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Prompts listos para copiar</div></div>
+    <div class="stat-card"><div class="num">1</div><div class="lbl">Fuente original cubierta</div></div>
+  </div>
+
+  <div class="chip-row" id="chipRow"></div>
+
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="Buscar capacidad, palabra clave o prompt...">
+  </div>
+  <div class="search-meta" id="searchMeta"></div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <div class="footer-note">Generado a partir de la fuente sobre Gemma 4 del cuaderno de NotebookLM "Duelo de IA: GPT-5.6 Sol contra Fable 5".<br>Gemma 4 es <strong>una familia de modelos abiertos que se ejecutan en local</strong> (no una app en la nube), descrita en las fuentes como "el Android de los modelos inteligentes". Se organiza en <strong>7 capacidades distintas</strong>; "Privacidad total sin internet", "Generación de landing pages" y "Asistente de código en el editor" incluyen 2 ejemplos cada una para llegar a los 10 pedidos.<br>Los prompts se escriben en el chat local (terminal, LM Studio u Open Code) una vez el modelo está en marcha. Sustituye lo que esté entre corchetes por tus datos.</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const TOOLS = {
+    privacy: { name: 'Privacidad total sin internet', ico: '🔒' },
+    size: { name: 'Elegir tamaño según hardware', ico: '⚖️' },
+    coder: { name: 'Gemma 4 Coder (fine-tune)', ico: '👨‍💻' },
+    landing: { name: 'Landing pages / apps locales', ico: '🌐' },
+    editor: { name: 'Asistente de código en editor', ico: '🧩' },
+    ollama: { name: 'Ejecución vía Ollama', ico: '🦙' },
+    llamacpp: { name: 'Ejecución vía Llama.cpp', ico: '⚙️' }
+  };
+
+  const ITEMS = [
+    {
+      tool: 'privacy',
+      t: 'Analizar datos de alumnado sin salir del centro',
+      q: 'Gemma 4 se ejecuta 100% en local, sin conexión a internet, por lo que ningún dato introducido sale nunca del ordenador.',
+      p: 'Procesar información sensible del alumnado cumpliendo normativas estrictas de protección de datos de menores.',
+      e: 'Organizar un listado con necesidades educativas especiales sin enviarlo jamás a un servidor externo.',
+      prompt: 'Aquí tienes un listado con los nombres, edades y necesidades educativas especiales de los alumnos de mi clase (pegado abajo). Organízalo en una tabla clara por tipo de necesidad y sugiéreme 3 adaptaciones generales por categoría. Recuerda que todo este proceso se está ejecutando en local, sin conexión a internet: [pega aquí el listado].'
+    },
+    {
+      tool: 'privacy',
+      t: 'Redactar informes confidenciales en el aula',
+      q: 'Al no depender de la nube, Gemma 4 permite trabajar con información sensible cumpliendo RGPD/LOPDGDD sin depender de servicios externos.',
+      p: 'Redactar documentos delicados (seguimiento, conducta) con total privacidad, desde el propio ordenador del centro.',
+      e: 'Redactar un informe de seguimiento conductual de un alumno de forma completamente privada y local.',
+      prompt: 'Redacta un informe de seguimiento conductual profesional y empático para un alumno de 10 años, a partir de estas notas rápidas que te paso: [pega tus notas]. Usa un tono constructivo orientado a la mejora, sin juicios de valor.'
+    },
+    {
+      tool: 'size',
+      t: 'Usar el modelo ligero en portátiles del aula',
+      q: 'Gemma 4 viene en varios tamaños (E2B/E4B para portátiles, 12B/26B para hardware potente), adaptándose al equipo disponible.',
+      p: 'Aprovechar IA local incluso en los equipos más modestos del aula de informática, sin necesidad de hardware potente.',
+      e: 'Usar el modelo E4B (unos 9,6 GB) en los portátiles del centro para tareas ligeras del día a día.',
+      prompt: 'Actuando como asistente ligero en un portátil de aula (modelo E4B): ayúdame a redactar 5 preguntas de comprensión lectora sencillas sobre este texto corto que te voy a pegar: [pega el texto].'
+    },
+    {
+      tool: 'coder',
+      t: 'Depurar el código de un alumno con el modelo especializado',
+      q: 'La comunidad ha creado fine-tunes especializados en programación, como Gemma 4 Coder, a partir del modelo base abierto.',
+      p: 'Dar soporte de código especializado a un club de programación sin depender de servicios externos.',
+      e: 'Revisar el script de Python de un alumno y explicar el error de forma sencilla, sin reescribirlo todo.',
+      prompt: 'Usando el modelo Gemma 4 Coder: revisa este script de Python que ha escrito un alumno de 12 años para un proyecto de tecnología, explica el error que impide que funcione con palabras sencillas y sugiere la corrección mínima necesaria, sin reescribir todo el código: [pega el script].'
+    },
+    {
+      tool: 'landing',
+      t: 'Web sencilla para un proyecto de aula',
+      q: 'Gemma 4 puede generar estructuras web completas (HTML/CSS/JS o React) sin enviar el código a servidores externos.',
+      p: 'Crear páginas de presentación de proyectos de centro manteniendo el trabajo totalmente privado.',
+      e: 'Generar la landing page del proyecto "Huerto Escolar" con secciones de información, calendario y galería.',
+      prompt: 'Genera el código HTML, CSS y JavaScript de una landing page sencilla para el proyecto "Huerto Escolar" de mi colegio, con secciones de: introducción, calendario de siembra, galería de fotos (con imágenes de ejemplo) y un formulario de contacto para las familias. Todo en un único archivo, sin dependencias externas.'
+    },
+    {
+      tool: 'landing',
+      t: 'Prototipo de app de gestión sin conexión',
+      q: 'En hardware más potente (modelo 26B), Gemma 4 puede generar estructuras más complejas con frameworks como React y Vite.',
+      p: 'Crear un prototipo funcional de herramienta interna sin exponer el código a internet en ningún momento.',
+      e: 'Generar la estructura base en React de una pequeña app para gestionar contactos de proveedores del centro.',
+      prompt: 'Con el modelo de 26B: genera la estructura base en React y Vite de una pequeña aplicación para gestionar los contactos de proveedores del centro (nombre, servicio, teléfono, notas), con una tabla editable y un botón para añadir nuevos contactos.'
+    },
+    {
+      tool: 'editor',
+      t: 'Ayuda de código local en el club de programación',
+      q: 'Conectando el editor (Open Code) al puerto local del modelo, Gemma 4 actúa como asistente de código integrado, con capacidad de leer y editar archivos.',
+      p: 'Dar soporte de programación a un club de tecnología sin depender de la nube ni exponer el código de los alumnos.',
+      e: 'Pedir la creación de un CRUD sencillo directamente desde el editor conectado al modelo local.',
+      prompt: 'Crea un CRUD de tareas sencillo en React, con las operaciones de añadir, editar, marcar como completada y eliminar. Usa componentes funcionales y guarda los datos en el almacenamiento local del navegador (localStorage).'
+    },
+    {
+      tool: 'editor',
+      t: 'Refactorizar el código de un proyecto de alumnos',
+      q: 'El asistente de código local puede leer archivos existentes y sugerir mejoras sin depender de servicios externos.',
+      p: 'Enseñar buenas prácticas de programación revisando y mejorando el código que ya han escrito los alumnos.',
+      e: 'Revisar el proyecto de un grupo de Bachillerato de Tecnología y sugerir mejoras de organización.',
+      prompt: 'Revisa este archivo JavaScript de un proyecto de alumnos de Bachillerato de Tecnología. Sin cambiar su funcionamiento, sugiere mejoras de organización y nombres de variables más claros, explicando cada cambio de forma que puedan aprender de ello: [pega el código].'
+    },
+    {
+      tool: 'ollama',
+      t: 'Primera prueba del modelo con Ollama',
+      q: 'El modelo estándar se descarga y ejecuta con un simple comando de Ollama (ollama run gemma4:e4b), sin configuración compleja.',
+      p: 'Poner en marcha IA local en minutos para probarla por primera vez en el ordenador del aula.',
+      e: 'Instalar el modelo y pedirle que se presente, comprobando que responde correctamente en local.',
+      prompt: 'Preséntate brevemente y explícame en qué tipo de tareas educativas puedes ayudarme mejor, teniendo en cuenta que te estás ejecutando de forma local y privada en este ordenador, sin conexión a internet.'
+    },
+    {
+      tool: 'llamacpp',
+      t: 'Configurar un fine-tune avanzado con Llama.cpp',
+      q: 'Los fine-tunes especializados se descargan en formato .gguf desde Hugging Face y se ejecutan con Llama CPP cuando Ollama no los ofrece directamente.',
+      p: 'Acceder a versiones más especializadas del modelo (como Gemma 4 Coder) para tareas concretas.',
+      e: 'Configurar el fine-tune de código en el puerto local y conectarlo al editor para generar funciones específicas.',
+      prompt: 'Una vez configurado el fine-tune Gemma 4 Coder en Llama CPP y conectado a mi editor: genera una función en Python que calcule la media de las notas de una lista de alumnos e ignore los valores nulos, con comentarios explicativos para que puedan entenderla alumnos de 4º de ESO.'
+    }
+  ];
+
+  const grid = document.getElementById('cardGrid');
+  const searchInput = document.getElementById('searchInput');
+  const searchMeta = document.getElementById('searchMeta');
+  const chipRow = document.getElementById('chipRow');
+  const State = { activeTool: 'all', query: '' };
+
+  function highlight(str, q) {
+    if (!q) return str;
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + esc + ')', 'ig');
+    return str.replace(re, '<mark>$1</mark>');
+  }
+
+  function renderChips() {
+    const counts = { all: ITEMS.length };
+    Object.keys(TOOLS).forEach(k => { counts[k] = ITEMS.filter(i => i.tool === k).length; });
+
+    const chips = [{ key: 'all', label: '🤖 Todas', count: counts.all }]
+      .concat(Object.keys(TOOLS).map(k => ({ key: k, label: `${TOOLS[k].ico} ${TOOLS[k].name}`, count: counts[k] })));
+
+    chipRow.innerHTML = chips.map(c => `
+      <button class="chip ${State.activeTool === c.key ? 'active' : ''}" data-key="${c.key}">${c.label} (${c.count})</button>
+    `).join('');
+
+    chipRow.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        State.activeTool = btn.dataset.key;
+        renderChips();
+        render();
+      });
+    });
+  }
+
+  function cardTemplate(item, idx, q) {
+    const tool = TOOLS[item.tool];
+    return `
+      <div class="tool-card" data-idx="${idx}">
+        <div class="card-head">
+          <div class="card-num">${idx + 1}</div>
+          <div class="card-ico">${tool.ico}</div>
+          <div class="card-title">${highlight(item.t, q)}</div>
+        </div>
+        <div class="tool-badge">${tool.ico} ${tool.name}</div>
+        <div class="card-body">
+          <div>
+            <div class="field-label">🔍 Qué es</div>
+            <div class="field-text">${highlight(item.q, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">⚙️ Para qué sirve</div>
+            <div class="field-text">${highlight(item.p, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">💡 Ejemplo de uso</div>
+            <div class="example-box">${highlight(item.e, q)}</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-label">
+              <span>✨ Prompt listo para copiar</span>
+              <button class="copy-btn" data-idx="${idx}" aria-label="Copiar prompt">📋 Copiar</button>
+            </div>
+            <div class="prompt-text">${highlight(item.prompt, q)}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function attachCopyEvents() {
+    grid.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        const text = ITEMS[idx].prompt;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerHTML;
+          btn.innerHTML = '✅ Copiado';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('copied');
+          }, 1600);
+        }).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btn.innerHTML = '✅ Copiado';
+          setTimeout(() => { btn.innerHTML = '📋 Copiar'; }, 1600);
+        });
+      });
+    });
+  }
+
+  function render() {
+    const q = State.query.trim();
+    const filtered = [];
+    ITEMS.forEach((item, idx) => {
+      if (State.activeTool !== 'all' && item.tool !== State.activeTool) return;
+      const haystack = (item.t + ' ' + item.q + ' ' + item.p + ' ' + item.e + ' ' + item.prompt + ' ' + TOOLS[item.tool].name).toLowerCase();
+      if (!q || haystack.includes(q.toLowerCase())) filtered.push({ item, idx });
+    });
+
+    searchMeta.textContent = q ? `${filtered.length} resultado(s) para "${State.query}"` : `Mostrando ${filtered.length} de ${ITEMS.length} ejemplos`;
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="big">🕳️</div>No se encontró ningún ejemplo que coincida con tu búsqueda.</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(f => cardTemplate(f.item, f.idx, q)).join('');
+    attachCopyEvents();
+  }
+
+  let searchTimer = null;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    const val = e.target.value;
+    searchTimer = setTimeout(() => { State.query = val; render(); }, 180);
+  });
+
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  const AppTheme = { current: localStorage.getItem('gemma4-dash-theme') || 'auto' };
+  function applyTheme() {
+    if (AppTheme.current === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+      themeLabel.textContent = 'Modo automático';
+    } else {
+      document.documentElement.setAttribute('data-theme', AppTheme.current);
+      themeLabel.textContent = AppTheme.current === 'dark' ? 'Modo oscuro' : 'Modo claro';
+    }
+  }
+  themeToggle.addEventListener('click', () => {
+    AppTheme.current = AppTheme.current === 'auto' ? 'dark' : (AppTheme.current === 'dark' ? 'light' : 'auto');
+    localStorage.setItem('gemma4-dash-theme', AppTheme.current);
+    applyTheme();
+  });
+  applyTheme();
+
+  // ---------- Init ----------
+  renderChips();
+  render();
+});
+</script>
+</body>
+</html>
