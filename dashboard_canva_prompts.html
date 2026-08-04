@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canva IA — Casos de Uso y Prompts Listos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fdf6fc;
+    --surface: #ffffff;
+    --surface-alt: #f8e4f5;
+    --accent: #a21caf;
+    --accent-light: #f3d3ef;
+    --accent-dark: #78116e;
+    --text: #2a1727;
+    --text-muted: #8a6685;
+    --border: #f0d6ec;
+    --shadow: 0 2px 12px rgba(162,28,175,0.11);
+    --prompt-bg: #200a1e;
+    --prompt-text: #fae0f7;
+    --prompt-accent: #e879f9;
+  }
+  :root[data-theme="dark"] {
+    --bg: #190c18;
+    --surface: #241322;
+    --surface-alt: #2d1829;
+    --accent: #e879f9;
+    --accent-light: #3f1e3b;
+    --accent-dark: #f0abfc;
+    --text: #f9e8f6;
+    --text-muted: #bc93b6;
+    --border: #3a1f36;
+    --shadow: 0 2px 16px rgba(0,0,0,0.4);
+    --prompt-bg: #130712;
+    --prompt-text: #f4d9f0;
+    --prompt-accent: #e879f9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #190c18;
+      --surface: #241322;
+      --surface-alt: #2d1829;
+      --accent: #e879f9;
+      --accent-light: #3f1e3b;
+      --accent-dark: #f0abfc;
+      --text: #f9e8f6;
+      --text-muted: #bc93b6;
+      --border: #3a1f36;
+      --shadow: 0 2px 16px rgba(0,0,0,0.4);
+      --prompt-bg: #130712;
+      --prompt-text: #f4d9f0;
+      --prompt-accent: #e879f9;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .card-title, .brand { font-family: 'Outfit', sans-serif; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 24px 70px;
+  }
+
+  /* ---------- Header ---------- */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand .logo {
+    font-size: 2.2rem;
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-light);
+    border-radius: 16px;
+  }
+  .brand h1 { margin: 0; font-size: 1.6rem; font-weight: 800; color: var(--accent-dark); }
+  .brand .sub { color: var(--text-muted); font-size: 0.9rem; margin-top: 2px; }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .num { font-size: 1.7rem; font-weight: 800; color: var(--accent); }
+  .stat-card .lbl { color: var(--text-muted); font-size: 0.8rem; margin-top: 2px; }
+
+  /* ---------- Tool filter chips ---------- */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .search-row {
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .search-row input {
+    width: 100%;
+    padding: 13px 18px 13px 42px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-row input:focus { border-color: var(--accent); }
+  .search-row::before {
+    content: '🔎';
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .search-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0 0 20px 4px;
+  }
+
+  /* ---------- Cards ---------- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 20px 6px;
+  }
+  .card-num {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-ico { font-size: 1.4rem; }
+  .card-title { font-size: 1.02rem; font-weight: 700; line-height: 1.3; margin-top: 1px; }
+
+  .tool-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin: 10px 20px 0;
+    width: fit-content;
+  }
+
+  .card-body { padding: 12px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+  .field-text { font-size: 0.87rem; line-height: 1.55; }
+  .field-text strong { color: var(--text); }
+
+  .example-box {
+    background: var(--surface-alt);
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--accent);
+  }
+
+  .prompt-box {
+    background: var(--prompt-bg);
+    color: var(--prompt-text);
+    border-radius: 14px;
+    padding: 14px 15px 12px;
+    position: relative;
+    margin-top: 2px;
+  }
+  .prompt-box .prompt-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .prompt-box .prompt-label span {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--prompt-accent);
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(232,121,249,0.16);
+    border: 1px solid rgba(232,121,249,0.45);
+    color: var(--prompt-accent);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: rgba(232,121,249,0.28); }
+  .copy-btn.copied { background: var(--prompt-accent); color: #2a0e28; border-color: var(--prompt-accent); }
+  .prompt-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .big { font-size: 2.4rem; margin-bottom: 10px; }
+
+  mark {
+    background: var(--accent-light);
+    color: var(--text);
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+
+  .footer-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 40px;
+    line-height: 1.6;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="brand">
+      <div class="logo">🖍️</div>
+      <div>
+        <h1>Canva IA — Casos de Uso y Prompts</h1>
+        <div class="sub">Solo fuentes de Canva para Educación del cuaderno "Duelo de IA"</div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro">🌗 <span id="themeLabel">Modo automático</span></button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num">6</div><div class="lbl">Capacidades de Canva IA</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Ejemplos de uso</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Prompts listos para copiar</div></div>
+    <div class="stat-card"><div class="num">2</div><div class="lbl">Fuentes originales cubiertas</div></div>
+  </div>
+
+  <div class="chip-row" id="chipRow"></div>
+
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="Buscar capacidad, palabra clave o prompt...">
+  </div>
+  <div class="search-meta" id="searchMeta"></div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <div class="footer-note">Generado a partir de las fuentes sobre Canva IA para Educación del cuaderno de NotebookLM "Duelo de IA: GPT-5.6 Sol contra Fable 5".<br>Se trata de la funcionalidad "Recursos Didácticos" de Canva, organizada aquí en <strong>6 capacidades</strong>: fichas de ejercicios, pizarras online, juegos interactivos, currículos oficiales integrados, recursos combinados y opciones de distribución. "Fichas", "Pizarras", "Juegos" y "Currículos oficiales" incluyen 2 ejemplos cada una para llegar a los 10 pedidos.<br>Los prompts se escriben directamente en el cuadro "Crear con IA" dentro de la pestaña Recursos Didácticos de Canva. Sustituye lo que esté entre corchetes por tus datos.</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const TOOLS = {
+    fichas: { name: 'Fichas de ejercicios', ico: '📝' },
+    pizarras: { name: 'Pizarras online', ico: '🖼️' },
+    juegos: { name: 'Juegos interactivos (Canva Code)', ico: '🎮' },
+    curriculo: { name: 'Currículos oficiales integrados', ico: '📚' },
+    combinado: { name: 'Recursos combinados (unidad completa)', ico: '🧩' },
+    compartir: { name: 'Imprimir o compartir online', ico: '🔗' }
+  };
+
+  const ITEMS = [
+    {
+      tool: 'fichas',
+      t: 'Ficha imprimible sobre un tema de Historia',
+      q: 'Canva genera fichas de ejercicios editables (preguntas de desarrollo o tipo test) alineadas con el currículo oficial.',
+      p: 'Crear rápidamente material de apoyo imprimible para reforzar un tema concreto.',
+      e: 'Pedir una ficha sobre el antiguo Egipto con preguntas de desarrollo y espacio para el nombre del alumno.',
+      prompt: 'Crea con IA una ficha de ejercicios sobre "el antiguo Egipto" (sociedad, creencias, religión, faraones y arte) para 5º de Primaria, con una clasificación de conceptos, tres preguntas de desarrollo y un hueco para el nombre del alumno.'
+    },
+    {
+      tool: 'fichas',
+      t: 'Ficha tipo test para repaso rápido',
+      q: 'Además de preguntas de desarrollo, Canva puede generar fichas en formato test de opción múltiple.',
+      p: 'Crear repasos rápidos y fáciles de corregir antes de un examen.',
+      e: 'Generar una ficha tipo test de 10 preguntas sobre las tablas de multiplicar.',
+      prompt: 'Crea con IA una ficha tipo test de 10 preguntas sobre las tablas de multiplicar del 2 al 5, con 4 opciones de respuesta por pregunta y una plantilla de respuestas al final para autocorrección.'
+    },
+    {
+      tool: 'pizarras',
+      t: 'Mural de pensamiento crítico con la taxonomía de Bloom',
+      q: 'Las pizarras online de Canva se basan en la taxonomía de Bloom y rutinas de pensamiento visible.',
+      p: 'Estructurar una sesión de debate o reflexión siguiendo niveles crecientes de complejidad cognitiva.',
+      e: 'Crear un mural para debatir sobre el cambio climático con preguntas de distinto nivel de Bloom.',
+      prompt: 'Crea con IA una pizarra online basada en la taxonomía de Bloom sobre "el cambio climático" para 6º de Primaria, con preguntas progresivas desde recordar hasta crear, organizadas visualmente por columnas.'
+    },
+    {
+      tool: 'pizarras',
+      t: 'Rutina de pensamiento "veo-pienso-me pregunto"',
+      q: 'Canva también genera pizarras basadas en rutinas de pensamiento visible conocidas en pedagogía.',
+      p: 'Estructurar visualmente una actividad de observación y reflexión guiada.',
+      e: 'Crear una pizarra con la rutina "veo-pienso-me pregunto" a partir de una imagen histórica.',
+      prompt: 'Crea con IA una pizarra online con la rutina de pensamiento "veo-pienso-me pregunto" a partir de una imagen del descubrimiento de América, con espacios diferenciados para cada una de las tres fases.'
+    },
+    {
+      tool: 'juegos',
+      t: 'Juego de clasificación con calificación automática',
+      q: 'Los juegos interactivos se crean mediante Canva Code y envían las calificaciones automáticamente a una hoja de cálculo.',
+      p: 'Gamificar el repaso de un contenido sin tener que corregir manualmente.',
+      e: 'Un juego de clasificar tipos de animales que registra automáticamente los resultados.',
+      prompt: 'Crea con IA un juego interactivo para "clasificar los tipos de animales" (vertebrados e invertebrados) para 4º de Primaria, que registre y envíe automáticamente las calificaciones a una hoja de cálculo.'
+    },
+    {
+      tool: 'juegos',
+      t: 'Juego de emparejar conceptos de vocabulario',
+      q: 'Los juegos también pueden basarse en mecánicas de emparejamiento o memoria.',
+      p: 'Reforzar vocabulario de una unidad de forma lúdica y medible.',
+      e: 'Un juego de emparejar palabras en inglés con su traducción para el área bilingüe.',
+      prompt: 'Crea con IA un juego interactivo de emparejar palabras en inglés con su traducción al español, usando el vocabulario de la unidad "Animals", con un marcador de aciertos visible para el alumnado.'
+    },
+    {
+      tool: 'curriculo',
+      t: 'Contenido alineado con el currículo de tu comunidad',
+      q: 'Canva incluye los currículos oficiales de distintos países (y comunidades autónomas en España), generando contenido alineado automáticamente.',
+      p: 'Asegurar que el material generado cumple los criterios de evaluación oficiales sin revisión manual.',
+      e: 'Generar una ficha que cite automáticamente el criterio de evaluación al que corresponde.',
+      prompt: 'Crea con IA una ficha de ejercicios sobre "los ecosistemas" para 6º de Primaria, alineada con el currículo oficial vigente, indicando al final de la ficha el criterio de evaluación concreto que trabaja.'
+    },
+    {
+      tool: 'curriculo',
+      t: 'Sugerencia de contenidos de una unidad según el currículo',
+      q: 'Al conocer el currículo oficial, Canva puede sugerir la secuencia de contenidos de una unidad completa.',
+      p: 'Apoyar la planificación docente asegurando la cobertura curricular desde el primer momento.',
+      e: 'Pedir sugerencias de contenidos y objetivos de una unidad según el currículo oficial antes de crear el material.',
+      prompt: 'Según el currículo oficial de Ciencias Sociales de 6º de Primaria, sugiéreme los contenidos y objetivos que debería cubrir una unidad sobre "la Edad Media", y genera después una ficha de ejercicios que los recoja.'
+    },
+    {
+      tool: 'combinado',
+      t: 'Paquete completo de recursos para una unidad',
+      q: 'Se pueden combinar los tres tipos de recursos (ficha, pizarra y juego) para cubrir una misma unidad desde distintos formatos.',
+      p: 'Crear un paquete completo de materiales para una unidad didáctica en una sola sesión de trabajo.',
+      e: 'Generar ficha, pizarra y juego sobre el mismo tema para variar el tipo de actividad en distintas sesiones.',
+      prompt: 'Crea con IA en Canva tres recursos sobre "el sistema solar" para 5º de Primaria: una ficha de ejercicios tipo test, una pizarra online con la rutina "veo-pienso-me pregunto", y un juego interactivo de emparejar planetas con sus características.'
+    },
+    {
+      tool: 'compartir',
+      t: 'Elegir entre imprimir o compartir como enlace',
+      q: 'Los recursos generados se pueden editar, imprimir o compartir mediante un enlace para trabajo online.',
+      p: 'Adaptar el mismo recurso a distintos contextos de uso (aula sin dispositivos, tarea online, etc.).',
+      e: 'Generar un recurso y decidir si se imprime para clase o se comparte como enlace para tarea en casa.',
+      prompt: 'Crea con IA una ficha de repaso sobre "los ríos de España" para 6º de Primaria. Después dime cómo debo configurarla para poder compartirla como enlace online para que la completen en casa, en vez de imprimirla.'
+    }
+  ];
+
+  const grid = document.getElementById('cardGrid');
+  const searchInput = document.getElementById('searchInput');
+  const searchMeta = document.getElementById('searchMeta');
+  const chipRow = document.getElementById('chipRow');
+  const State = { activeTool: 'all', query: '' };
+
+  function highlight(str, q) {
+    if (!q) return str;
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + esc + ')', 'ig');
+    return str.replace(re, '<mark>$1</mark>');
+  }
+
+  function renderChips() {
+    const counts = { all: ITEMS.length };
+    Object.keys(TOOLS).forEach(k => { counts[k] = ITEMS.filter(i => i.tool === k).length; });
+
+    const chips = [{ key: 'all', label: '🖍️ Todas', count: counts.all }]
+      .concat(Object.keys(TOOLS).map(k => ({ key: k, label: `${TOOLS[k].ico} ${TOOLS[k].name}`, count: counts[k] })));
+
+    chipRow.innerHTML = chips.map(c => `
+      <button class="chip ${State.activeTool === c.key ? 'active' : ''}" data-key="${c.key}">${c.label} (${c.count})</button>
+    `).join('');
+
+    chipRow.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        State.activeTool = btn.dataset.key;
+        renderChips();
+        render();
+      });
+    });
+  }
+
+  function cardTemplate(item, idx, q) {
+    const tool = TOOLS[item.tool];
+    return `
+      <div class="tool-card" data-idx="${idx}">
+        <div class="card-head">
+          <div class="card-num">${idx + 1}</div>
+          <div class="card-ico">${tool.ico}</div>
+          <div class="card-title">${highlight(item.t, q)}</div>
+        </div>
+        <div class="tool-badge">${tool.ico} ${tool.name}</div>
+        <div class="card-body">
+          <div>
+            <div class="field-label">🔍 Qué es</div>
+            <div class="field-text">${highlight(item.q, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">⚙️ Para qué sirve</div>
+            <div class="field-text">${highlight(item.p, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">💡 Ejemplo de uso</div>
+            <div class="example-box">${highlight(item.e, q)}</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-label">
+              <span>✨ Prompt listo para copiar</span>
+              <button class="copy-btn" data-idx="${idx}" aria-label="Copiar prompt">📋 Copiar</button>
+            </div>
+            <div class="prompt-text">${highlight(item.prompt, q)}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function attachCopyEvents() {
+    grid.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        const text = ITEMS[idx].prompt;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerHTML;
+          btn.innerHTML = '✅ Copiado';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('copied');
+          }, 1600);
+        }).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btn.innerHTML = '✅ Copiado';
+          setTimeout(() => { btn.innerHTML = '📋 Copiar'; }, 1600);
+        });
+      });
+    });
+  }
+
+  function render() {
+    const q = State.query.trim();
+    const filtered = [];
+    ITEMS.forEach((item, idx) => {
+      if (State.activeTool !== 'all' && item.tool !== State.activeTool) return;
+      const haystack = (item.t + ' ' + item.q + ' ' + item.p + ' ' + item.e + ' ' + item.prompt + ' ' + TOOLS[item.tool].name).toLowerCase();
+      if (!q || haystack.includes(q.toLowerCase())) filtered.push({ item, idx });
+    });
+
+    searchMeta.textContent = q ? `${filtered.length} resultado(s) para "${State.query}"` : `Mostrando ${filtered.length} de ${ITEMS.length} ejemplos`;
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="big">🕳️</div>No se encontró ningún ejemplo que coincida con tu búsqueda.</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(f => cardTemplate(f.item, f.idx, q)).join('');
+    attachCopyEvents();
+  }
+
+  let searchTimer = null;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    const val = e.target.value;
+    searchTimer = setTimeout(() => { State.query = val; render(); }, 180);
+  });
+
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  const AppTheme = { current: localStorage.getItem('canva-dash-theme') || 'auto' };
+  function applyTheme() {
+    if (AppTheme.current === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+      themeLabel.textContent = 'Modo automático';
+    } else {
+      document.documentElement.setAttribute('data-theme', AppTheme.current);
+      themeLabel.textContent = AppTheme.current === 'dark' ? 'Modo oscuro' : 'Modo claro';
+    }
+  }
+  themeToggle.addEventListener('click', () => {
+    AppTheme.current = AppTheme.current === 'auto' ? 'dark' : (AppTheme.current === 'dark' ? 'light' : 'auto');
+    localStorage.setItem('canva-dash-theme', AppTheme.current);
+    applyTheme();
+  });
+  applyTheme();
+
+  // ---------- Init ----------
+  renderChips();
+  render();
+});
+</script>
+</body>
+</html>
