@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice b — Casos de Uso y Prompts Listos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fdf6f9;
+    --surface: #ffffff;
+    --surface-alt: #fbe6ee;
+    --accent: #db2777;
+    --accent-light: #f9d3e5;
+    --accent-dark: #a91557;
+    --text: #2a1620;
+    --text-muted: #8a6274;
+    --border: #f4d5e3;
+    --shadow: 0 2px 12px rgba(219,39,119,0.10);
+    --prompt-bg: #24101a;
+    --prompt-text: #fbe1ec;
+    --prompt-accent: #f472b6;
+  }
+  :root[data-theme="dark"] {
+    --bg: #1a0e15;
+    --surface: #251621;
+    --surface-alt: #2e1b28;
+    --accent: #f472b6;
+    --accent-light: #43223a;
+    --accent-dark: #f9a8d4;
+    --text: #fbe9f1;
+    --text-muted: #bf93ab;
+    --border: #3a2131;
+    --shadow: 0 2px 16px rgba(0,0,0,0.4);
+    --prompt-bg: #140a10;
+    --prompt-text: #f6d9e7;
+    --prompt-accent: #f472b6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1a0e15;
+      --surface: #251621;
+      --surface-alt: #2e1b28;
+      --accent: #f472b6;
+      --accent-light: #43223a;
+      --accent-dark: #f9a8d4;
+      --text: #fbe9f1;
+      --text-muted: #bf93ab;
+      --border: #3a2131;
+      --shadow: 0 2px 16px rgba(0,0,0,0.4);
+      --prompt-bg: #140a10;
+      --prompt-text: #f6d9e7;
+      --prompt-accent: #f472b6;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    min-height: 100vh;
+  }
+  h1, h2, h3, .card-title, .brand { font-family: 'Outfit', sans-serif; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 34px 24px 70px;
+  }
+
+  /* ---------- Header ---------- */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .brand .logo {
+    font-size: 2.2rem;
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-light);
+    border-radius: 16px;
+  }
+  .brand h1 { margin: 0; font-size: 1.6rem; font-weight: 800; color: var(--accent-dark); }
+  .brand .sub { color: var(--text-muted); font-size: 0.9rem; margin-top: 2px; }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .stat-card .num { font-size: 1.7rem; font-weight: 800; color: var(--accent); }
+  .stat-card .lbl { color: var(--text-muted); font-size: 0.8rem; margin-top: 2px; }
+
+  /* ---------- Tool filter chips ---------- */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .search-row {
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .search-row input {
+    width: 100%;
+    padding: 13px 18px 13px 42px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-row input:focus { border-color: var(--accent); }
+  .search-row::before {
+    content: '🔎';
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .search-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0 0 20px 4px;
+  }
+
+  /* ---------- Cards ---------- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 20px 6px;
+  }
+  .card-num {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-ico { font-size: 1.4rem; }
+  .card-title { font-size: 1.02rem; font-weight: 700; line-height: 1.3; margin-top: 1px; }
+
+  .tool-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin: 10px 20px 0;
+    width: fit-content;
+  }
+
+  .card-body { padding: 12px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+  .field-text { font-size: 0.87rem; line-height: 1.55; }
+  .field-text strong { color: var(--text); }
+
+  .example-box {
+    background: var(--surface-alt);
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--accent);
+  }
+
+  .prompt-box {
+    background: var(--prompt-bg);
+    color: var(--prompt-text);
+    border-radius: 14px;
+    padding: 14px 15px 12px;
+    position: relative;
+    margin-top: 2px;
+  }
+  .prompt-box .prompt-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .prompt-box .prompt-label span {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--prompt-accent);
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(244,114,182,0.16);
+    border: 1px solid rgba(244,114,182,0.45);
+    color: var(--prompt-accent);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: rgba(244,114,182,0.28); }
+  .copy-btn.copied { background: var(--prompt-accent); color: #2a0f1f; border-color: var(--prompt-accent); }
+  .prompt-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .big { font-size: 2.4rem; margin-bottom: 10px; }
+
+  mark {
+    background: var(--accent-light);
+    color: var(--text);
+    padding: 0 2px;
+    border-radius: 3px;
+  }
+
+  .footer-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 40px;
+    line-height: 1.6;
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="brand">
+      <div class="logo">🎙️</div>
+      <div>
+        <h1>Voice b — Casos de Uso y Prompts</h1>
+        <div class="sub">Solo fuentes de Voice b (alternativa a ElevenLabs) del cuaderno "Duelo de IA"</div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema claro/oscuro">🌗 <span id="themeLabel">Modo automático</span></button>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num">7</div><div class="lbl">Capacidades de Voice b</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Ejemplos de uso</div></div>
+    <div class="stat-card"><div class="num">10</div><div class="lbl">Prompts listos para copiar</div></div>
+    <div class="stat-card"><div class="num">1</div><div class="lbl">Fuente original cubierta</div></div>
+  </div>
+
+  <div class="chip-row" id="chipRow"></div>
+
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="Buscar capacidad, palabra clave o prompt...">
+  </div>
+  <div class="search-meta" id="searchMeta"></div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <div class="footer-note">Generado a partir de la fuente sobre Voice b del cuaderno de NotebookLM "Duelo de IA: GPT-5.6 Sol contra Fable 5".<br>Voice b es <strong>una única herramienta gratuita y de código abierto</strong> de clonación de voz, no una suite de apps. Se organiza en <strong>7 capacidades</strong>; "Clonación de voz", "Síntesis de locuciones" y "Dictado por voz" incluyen 2 ejemplos cada una para llegar a los 10 pedidos.<br>Los prompts se escriben dentro de la propia herramienta, tras subir la muestra de voz o activar el dictado. Sustituye lo que esté entre corchetes por tus datos.</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const TOOLS = {
+    clonacion: { name: 'Clonación de voz (muestra mínima)', ico: '🧬' },
+    locucion: { name: 'Síntesis de locuciones desde guion', ico: '📢' },
+    dictado: { name: 'Dictado por voz en cualquier app', ico: '⌨️' },
+    idiomas: { name: 'Soporte multiidioma (23 idiomas)', ico: '🌍' },
+    emocion: { name: 'Tono y emociones naturales', ico: '💫' },
+    gratis: { name: 'Alternativa gratis a ElevenLabs', ico: '🆓' },
+    accesibilidad: { name: 'Apoyo a la accesibilidad', ico: '♿' }
+  };
+
+  const ITEMS = [
+    {
+      tool: 'clonacion',
+      t: 'Clonar la voz del docente para vídeos de aula invertida',
+      q: 'Voice b clona una voz conservando tono, ritmo y emociones naturales a partir de solo 3 segundos de audio.',
+      p: 'Generar contenido con la voz real del profesor aunque no esté disponible para grabar en ese momento.',
+      e: 'Subir un fragmento corto de la voz del docente y reutilizarla en vídeos futuros de la unidad.',
+      prompt: 'He subido una muestra de 3 segundos de mi voz a Voice b. Genera la locución completa de este guion de la unidad de Ciencias Naturales sobre el sistema solar, manteniendo un tono cercano y pausado adecuado para alumnado de 10 años: [pega el guion].'
+    },
+    {
+      tool: 'clonacion',
+      t: 'Dar voz a la mascota del centro',
+      q: 'La clonación también permite crear una identidad vocal propia y reutilizable para un personaje educativo.',
+      p: 'Mantener una voz consistente para un personaje recurrente en distintos materiales del centro.',
+      e: 'Clonar una voz específica para la mascota del colegio y usarla en varios vídeos de bienvenida o presentación.',
+      prompt: 'He clonado en Voice b la voz de nuestra mascota de centro, "Rayo". Genera la locución de esta presentación de bienvenida a los nuevos alumnos, con un tono alegre y entusiasta: [pega el texto de bienvenida].'
+    },
+    {
+      tool: 'locucion',
+      t: 'Locutar un vídeo completo de aula invertida',
+      q: 'Pegando un guion completo, Voice b genera la locución entera con la voz clonada, sin necesidad de grabar de nuevo.',
+      p: 'Producir contenido audiovisual educativo sin depender de la disponibilidad del docente para grabar.',
+      e: 'Locutar el guion completo de una unidad para un vídeo de flipped classroom.',
+      prompt: 'Genera la locución completa de este guion para un vídeo de aula invertida sobre el ciclo del agua, con pausas naturales entre frases y un ritmo pausado adecuado para 5º de Primaria: [pega el guion].'
+    },
+    {
+      tool: 'locucion',
+      t: 'Crear un audiolibro de una lectura obligatoria',
+      q: 'La síntesis de voz también permite convertir textos largos en audio de forma continuada y natural.',
+      p: 'Crear versiones en audio de las lecturas del curso para el alumnado que las necesite.',
+      e: 'Convertir un capítulo de una lectura obligatoria en un archivo de audio con voz natural.',
+      prompt: 'Convierte este capítulo de la lectura obligatoria del trimestre en una locución de audio, con una voz cálida y un ritmo constante, marcando pausas claras entre párrafos: [pega el capítulo].'
+    },
+    {
+      tool: 'dictado',
+      t: 'Redactar informes de tutoría dictando',
+      q: 'Manteniendo pulsada una tecla, Voice b transcribe lo que hablas directamente en la aplicación activa del ordenador.',
+      p: 'Escribir documentos más rápido dictando en vez de teclear, ahorrando tiempo administrativo.',
+      e: 'Dictar las observaciones de tutoría directamente en el documento de seguimiento del alumnado.',
+      prompt: 'Voy a dictar mis observaciones de tutoría de hoy usando el dictado de Voice b directamente en mi documento de seguimiento. Transcribe con precisión y añade automáticamente signos de puntuación donde correspondan según las pausas naturales de mi voz.'
+    },
+    {
+      tool: 'dictado',
+      t: 'Apoyo a la escritura con dificultades motrices',
+      q: 'El dictado funciona en cualquier aplicación activa del ordenador, sin depender de un programa concreto.',
+      p: 'Permitir que alumnado con dificultades de escritura redacte hablando en vez de escribir a mano o teclear.',
+      e: 'Un alumno dicta su redacción directamente en el procesador de texto usando la tecla de acceso rápido.',
+      prompt: 'Voy a dictar mi redacción sobre "mis vacaciones de verano" usando el dictado por voz. Transcribe exactamente lo que digo, y si me detengo mucho tiempo entiende que he terminado una frase y añade el punto correspondiente.'
+    },
+    {
+      tool: 'idiomas',
+      t: 'Locución bilingüe con la misma identidad vocal',
+      q: 'Voice b funciona en 23 idiomas distintos, manteniendo la calidad de la clonación en cada uno de ellos.',
+      p: 'Generar contenido educativo en varios idiomas conservando la misma voz reconocible.',
+      e: 'Generar la misma locución en español e inglés para el área bilingüe del centro.',
+      prompt: 'Con mi voz ya clonada en Voice b: genera esta misma locución en español y después en inglés, manteniendo la misma identidad vocal en ambos idiomas: [pega el texto en los dos idiomas].'
+    },
+    {
+      tool: 'emocion',
+      t: 'Locución motivadora antes de un examen',
+      q: 'La clonación conserva las emociones y el ritmo natural del hablante, no solo el timbre de voz.',
+      p: 'Generar locuciones con la entonación adecuada según el tipo de contenido (alegre, serio, motivador).',
+      e: 'Pedir explícitamente un tono emocional concreto para una locución motivadora dirigida al alumnado.',
+      prompt: 'Genera esta locución de ánimo para mis alumnos antes del examen final, con un tono cálido, motivador y cercano, manteniendo las inflexiones naturales de mi voz clonada: [pega el texto].'
+    },
+    {
+      tool: 'gratis',
+      t: 'Probar la calidad antes de pagar por una alternativa',
+      q: 'Voice b es gratuita y de código abierto, a diferencia de ElevenLabs, que requiere suscripción de pago.',
+      p: 'Dar acceso a clonación de voz de calidad profesional sin coste para centros con presupuesto limitado.',
+      e: 'Generar una locución de prueba y comparar el resultado con lo que costaría en una alternativa de pago.',
+      prompt: 'Genera esta locución de prueba con mi voz clonada gratis en Voice b: [pega el texto]. Quiero comparar la calidad con la que obtendría en una herramienta de pago como ElevenLabs antes de decidir si necesito contratar algo de pago para el centro.'
+    },
+    {
+      tool: 'accesibilidad',
+      t: 'Seguir dando clase en vídeo con problemas de voz',
+      q: 'La combinación de síntesis y dictado facilita el acceso a la comunicación oral y escrita en distintas circunstancias.',
+      p: 'Apoyar a docentes o alumnado con problemas de voz, escritura o visión mediante síntesis y dictado.',
+      e: 'Un docente con afonía temporal usa una locución clonada previamente para seguir dando explicaciones en vídeo.',
+      prompt: 'Estoy con afonía esta semana y no puedo grabar explicaciones en vídeo. Genera con mi voz clonada previamente la locución completa de esta explicación sobre las fracciones, para poder seguir dando la clase en formato vídeo mientras me recupero: [pega la explicación].'
+    }
+  ];
+
+  const grid = document.getElementById('cardGrid');
+  const searchInput = document.getElementById('searchInput');
+  const searchMeta = document.getElementById('searchMeta');
+  const chipRow = document.getElementById('chipRow');
+  const State = { activeTool: 'all', query: '' };
+
+  function highlight(str, q) {
+    if (!q) return str;
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + esc + ')', 'ig');
+    return str.replace(re, '<mark>$1</mark>');
+  }
+
+  function renderChips() {
+    const counts = { all: ITEMS.length };
+    Object.keys(TOOLS).forEach(k => { counts[k] = ITEMS.filter(i => i.tool === k).length; });
+
+    const chips = [{ key: 'all', label: '🎙️ Todas', count: counts.all }]
+      .concat(Object.keys(TOOLS).map(k => ({ key: k, label: `${TOOLS[k].ico} ${TOOLS[k].name}`, count: counts[k] })));
+
+    chipRow.innerHTML = chips.map(c => `
+      <button class="chip ${State.activeTool === c.key ? 'active' : ''}" data-key="${c.key}">${c.label} (${c.count})</button>
+    `).join('');
+
+    chipRow.querySelectorAll('.chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        State.activeTool = btn.dataset.key;
+        renderChips();
+        render();
+      });
+    });
+  }
+
+  function cardTemplate(item, idx, q) {
+    const tool = TOOLS[item.tool];
+    return `
+      <div class="tool-card" data-idx="${idx}">
+        <div class="card-head">
+          <div class="card-num">${idx + 1}</div>
+          <div class="card-ico">${tool.ico}</div>
+          <div class="card-title">${highlight(item.t, q)}</div>
+        </div>
+        <div class="tool-badge">${tool.ico} ${tool.name}</div>
+        <div class="card-body">
+          <div>
+            <div class="field-label">🔍 Qué es</div>
+            <div class="field-text">${highlight(item.q, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">⚙️ Para qué sirve</div>
+            <div class="field-text">${highlight(item.p, q)}</div>
+          </div>
+          <div>
+            <div class="field-label">💡 Ejemplo de uso</div>
+            <div class="example-box">${highlight(item.e, q)}</div>
+          </div>
+          <div class="prompt-box">
+            <div class="prompt-label">
+              <span>✨ Prompt listo para copiar</span>
+              <button class="copy-btn" data-idx="${idx}" aria-label="Copiar prompt">📋 Copiar</button>
+            </div>
+            <div class="prompt-text">${highlight(item.prompt, q)}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function attachCopyEvents() {
+    grid.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        const text = ITEMS[idx].prompt;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerHTML;
+          btn.innerHTML = '✅ Copiado';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.remove('copied');
+          }, 1600);
+        }).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btn.innerHTML = '✅ Copiado';
+          setTimeout(() => { btn.innerHTML = '📋 Copiar'; }, 1600);
+        });
+      });
+    });
+  }
+
+  function render() {
+    const q = State.query.trim();
+    const filtered = [];
+    ITEMS.forEach((item, idx) => {
+      if (State.activeTool !== 'all' && item.tool !== State.activeTool) return;
+      const haystack = (item.t + ' ' + item.q + ' ' + item.p + ' ' + item.e + ' ' + item.prompt + ' ' + TOOLS[item.tool].name).toLowerCase();
+      if (!q || haystack.includes(q.toLowerCase())) filtered.push({ item, idx });
+    });
+
+    searchMeta.textContent = q ? `${filtered.length} resultado(s) para "${State.query}"` : `Mostrando ${filtered.length} de ${ITEMS.length} ejemplos`;
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="big">🕳️</div>No se encontró ningún ejemplo que coincida con tu búsqueda.</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(f => cardTemplate(f.item, f.idx, q)).join('');
+    attachCopyEvents();
+  }
+
+  let searchTimer = null;
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    const val = e.target.value;
+    searchTimer = setTimeout(() => { State.query = val; render(); }, 180);
+  });
+
+  // ---------- Theme ----------
+  const themeToggle = document.getElementById('themeToggle');
+  const themeLabel = document.getElementById('themeLabel');
+  const AppTheme = { current: localStorage.getItem('voiceb-dash-theme') || 'auto' };
+  function applyTheme() {
+    if (AppTheme.current === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+      themeLabel.textContent = 'Modo automático';
+    } else {
+      document.documentElement.setAttribute('data-theme', AppTheme.current);
+      themeLabel.textContent = AppTheme.current === 'dark' ? 'Modo oscuro' : 'Modo claro';
+    }
+  }
+  themeToggle.addEventListener('click', () => {
+    AppTheme.current = AppTheme.current === 'auto' ? 'dark' : (AppTheme.current === 'dark' ? 'light' : 'auto');
+    localStorage.setItem('voiceb-dash-theme', AppTheme.current);
+    applyTheme();
+  });
+  applyTheme();
+
+  // ---------- Init ----------
+  renderChips();
+  render();
+});
+</script>
+</body>
+</html>
